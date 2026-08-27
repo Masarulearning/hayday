@@ -73,6 +73,14 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .btn-main{display:block;width:100%;padding:15px;border:none;border-radius:12px;background:var(--grass);color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 3px 0 #35662A}
 .btn-main:active{transform:translateY(2px);box-shadow:0 1px 0 #35662A}
 .btn-lite{padding:8px 13px;border:1px solid var(--line);border-radius:9px;background:var(--hay);font-size:13px;font-weight:600;font-family:inherit;color:var(--ink);cursor:pointer}
+.ckrow{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px dotted var(--line)}
+.ckrow:last-child{border-bottom:none}
+.ckrow input[type=checkbox]{width:19px;height:19px;margin-top:2px;flex:none;accent-color:var(--grass);cursor:pointer}
+.ckrow .tx{flex:1;font-size:13.5px;min-width:0}
+.runrow{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px dotted var(--line);font-size:13.5px}
+.runrow:last-child{border-bottom:none}
+.runrow .tx{flex:1;min-width:0}
+.runrow .tm{font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
 .step{border-left:4px solid var(--grass);background:var(--white);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 .step.warn{border-left-color:var(--sun)}
 .step.bad{border-left-color:var(--barn)}
@@ -154,6 +162,7 @@ footer{padding:18px 0 8px;font-size:12px;color:var(--ink-soft);text-align:center
       </select>
     </div>
   </div>
+  <div id="runPanel"></div>
   <button class="btn-main" id="btnPlan">Lên kế hoạch</button>
   <div style="height:13px"></div>
   <div id="planOut"><p class="empty">Nhập đơn hàng và tồn kho rồi bấm nút ở trên.</p></div>
@@ -161,6 +170,9 @@ footer{padding:18px 0 8px;font-size:12px;color:var(--ink-soft);text-align:center
 
 <!-- ===== ĐƠN HÀNG ===== -->
 <section class="page" id="p-don">
+  <div style="margin-bottom:10px">
+    <button class="btn-lite" id="btnUndo" style="display:none;border-color:var(--barn);color:var(--barn)">Hoàn tác</button>
+  </div>
   <div class="note">
     Mỗi dòng một đơn. Viết <code>Bread×2, Cream×3</code>, thêm <code>| 250</code> ở cuối nếu muốn ghi XP thưởng.
     Xong bảng xe thì xóa hết, dán bảng mới vào.
@@ -172,7 +184,7 @@ footer{padding:18px 0 8px;font-size:12px;color:var(--ink-soft);text-align:center
     <div id="truckSlots"></div>
     <details style="margin-top:12px">
       <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-soft)">Dán cả bảng cùng lúc</summary>
-      <textarea class="big" id="truckBox" style="margin-top:8px" placeholder="Bread×2, Cream×3 | 250&#10;Cheese×1, Egg×4 | 180"></textarea>
+      <textarea class="big" id="truckBox" style="margin-top:8px" placeholder="(ví dụ, không phải nội dung thật)&#10;Bread×2, Cream×3 | 250&#10;Cheese×1, Egg×4 | 180"></textarea>
       <div class="mrow">
         <button class="btn-lite" id="btnTruck">Ghi đè 9 ô</button>
         <button class="btn-lite" id="btnTruckClear">Xóa hết</button>
@@ -194,7 +206,7 @@ footer{padding:18px 0 8px;font-size:12px;color:var(--ink-soft);text-align:center
     <div id="boatSlots" style="margin-top:6px"></div>
     <details style="margin-top:12px">
       <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-soft)">Dán cả thuyền cùng lúc</summary>
-      <textarea class="big" id="boatBox" style="margin-top:8px" placeholder="Bread×9&#10;Cotton Fabric×6&#10;Cheese×8"></textarea>
+      <textarea class="big" id="boatBox" style="margin-top:8px" placeholder="(ví dụ, không phải nội dung thật)&#10;Bread×9&#10;Cotton Fabric×6"></textarea>
       <div class="mrow">
         <button class="btn-lite" id="btnBoat">Ghi đè</button>
         <button class="btn-lite" id="btnBoatClear">Xóa hết</button>
@@ -326,7 +338,7 @@ let S={
   plotsFree:0, plotsTotal:0,
   truck:[], boat:[], boatEta:0, boatDue:0,
   capSilo:2150, capBarn:5750, xpNow:464438, xpNeed:487000,
-  mode:"orders", loginTime:""
+  mode:"orders", loginTime:"", runs:[]
 };
 let CFG={token:"",gist:"",last:""};
 function load(){
@@ -668,6 +680,22 @@ function slotRow(list, idx, tag, host, redraw){
   return r;
 }
 
+let ORDER_UNDO=null;
+function snapshot(what){
+  ORDER_UNDO={truck:JSON.parse(JSON.stringify(S.truck||[])),
+              boat:JSON.parse(JSON.stringify(S.boat||[])), what:what};
+  const b=$("#btnUndo"); if(b){ b.style.display="inline-block"; b.textContent="Hoàn tác ("+what+")"; }
+}
+function undoOrders(){
+  if(!ORDER_UNDO) return;
+  S.truck=ORDER_UNDO.truck; S.boat=ORDER_UNDO.boat; ORDER_UNDO=null;
+  const b=$("#btnUndo"); if(b) b.style.display="none";
+  save(); renderOrders(); flag("Đã hoàn tác");
+}
+function syncBoxes(){
+  $("#truckBox").value=(S.truck||[]).filter(Boolean).map(orderText).join("\n");
+  $("#boatBox").value=(S.boat||[]).filter(Boolean).map(orderText).join("\n");
+}
 function renderOrders(){
   // ---- xe tải: 9 ô cố định ----
   S.truck=S.truck||[];
@@ -762,6 +790,60 @@ function planOrders(){
   return {deliverable, need, make, plant, gather, buy};
 }
 
+/* ========== ĐANG CHẠY ========== */
+function startRun(item, count){
+  Object.entries(item.in).forEach(([k,v])=>{ S.stock[k]=Math.max(0,qty(k)-v*count); });
+  S.slots[item.p]=Math.max(0,(S.slots[item.p]||0)-count);
+  S.runs=S.runs||[];
+  S.runs.push({id:String(Date.now())+Math.round(Math.random()*1e4),
+    m:item.p, n:item.n, c:count, min:item.min, xp:item.xp, end:Date.now()+item.min*60000});
+  save(); renderRuns(); renderStock(); renderMachines();
+  flag("Đã bấm "+item.n+" ×"+count);
+}
+function harvestRun(id){
+  const r=(S.runs||[]).find(x=>x.id===id); if(!r) return;
+  S.stock[r.n]=qty(r.n)+r.c;
+  S.xpNow=(S.xpNow||0)+r.xp*r.c;
+  S.slots[r.m]=(S.slots[r.m]||0)+r.c;
+  S.runs=S.runs.filter(x=>x.id!==id);
+  save(); renderRuns(); renderStock(); renderMachines(); showXp(); renderOrders();
+  flag("Đã thu "+r.n+" ×"+r.c+" · +"+(r.xp*r.c)+" XP");
+}
+function runLeft(r){ return Math.max(0,(r.end-Date.now())/60000); }
+function renderRuns(){
+  const host=$("#runPanel"); host.innerHTML="";
+  const runs=(S.runs||[]).slice().sort((a,b)=>a.end-b.end);
+  if(!runs.length) return;
+  const done=runs.filter(r=>runLeft(r)<=0).length;
+  const d=document.createElement("div"); d.className="step blue";
+  d.innerHTML='<h3>Đang chạy · '+runs.length+' mẻ'+(done?' · '+done+' mẻ đã xong':'')+'</h3>';
+  runs.forEach(r=>{
+    const left=runLeft(r);
+    const row=document.createElement("div"); row.className="runrow";
+    const tx=document.createElement("div"); tx.className="tx";
+    tx.innerHTML='<b>'+r.m+'</b> — '+(left>0?'Đang chạy':'<span style="color:var(--grass);font-weight:700">Đã xong</span>')
+      +'<br><span class="why">'+r.n+' ×'+r.c+' · '+(r.xp*r.c)+' XP</span>';
+    const tm=document.createElement("div"); tm.className="tm";
+    tm.textContent=left>0?"còn "+hm(left):"sẵn sàng";
+    const b=document.createElement("button"); b.className="btn-lite"; b.textContent="Đã thu hoạch";
+    b.style.cssText="padding:5px 10px;font-size:11.5px;white-space:nowrap";
+    if(left<=0){ b.style.background="var(--grass)"; b.style.color="#fff"; b.style.borderColor="var(--grass)"; }
+    b.onclick=()=>harvestRun(r.id);
+    const x=document.createElement("button"); x.className="xbtn"; x.textContent="×";
+    x.title="Bỏ mẻ này khỏi danh sách, không cộng hàng vào kho";
+    x.onclick=()=>{ if(!confirm("Bỏ mẻ này? Nguyên liệu đã trừ sẽ không được hoàn lại.")) return;
+      S.slots[r.m]=(S.slots[r.m]||0)+r.c; S.runs=S.runs.filter(z=>z.id!==r.id);
+      save(); renderRuns(); renderMachines(); };
+    row.append(tx,tm,b,x); d.appendChild(row);
+  });
+  const all=document.createElement("button"); all.className="btn-lite"; all.style.marginTop="9px";
+  all.textContent="Thu hết mẻ đã xong";
+  all.onclick=()=>{ runs.filter(r=>runLeft(r)<=0).forEach(r=>harvestRun(r.id)); };
+  if(done) d.appendChild(all);
+  host.appendChild(d);
+}
+setInterval(()=>{ if((S.runs||[]).length) renderRuns(); }, 30000);
+
 /* ========== KẾ HOẠCH ========== */
 function fillMachines(makeWanted){
   const work={}; items().forEach(i=>work[i.n]=qty(i.n));
@@ -797,6 +879,7 @@ function nextLogins(batches){
   allMachines().forEach(p=>parseWaits(S.wait[p]).forEach(n=>ev.push({t:n,w:p+" xong"})));
   Object.keys(S.src||{}).forEach(p=>parseWaits(S.src[p].wait).forEach(n=>ev.push({t:n,w:p+" sẵn sàng"})));
   batches.forEach(b=>ev.push({t:b.item.min,w:b.item.n+" xong"}));
+  (S.runs||[]).forEach(r=>{ const l=runLeft(r); if(l>0) ev.push({t:Math.round(l),w:r.m+" xong ("+r.n+")"}); });
   if(S.boatEta>0) ev.push({t:S.boatEta,w:"thuyền cập bến"});
   ev.sort((a,b)=>a.t-b.t);
   if(!ev.length) return [];
@@ -833,14 +916,29 @@ function renderPlan(){
   if(dl.length) out.appendChild(step("2 · Giao ngay được", dl, "blue"));
   else if((S.truck||[]).filter(Boolean).length||(S.boat||[]).filter(Boolean).length) out.appendChild(step("2 · Giao ngay được", ["Chưa đơn nào đủ hàng."], "warn"));
 
-  // 3 bấm máy
+  // 3 bấm máy — checklist
   if(F.batches.length){
-    const lines=F.batches.map(x=>{
-      const forOrder=P.make[x.item.n]?' <span class="pill ok">cho đơn</span>':'';
-      return forOrder+x.item.p+': <b>'+x.item.n+'</b> ×'+x.count+' <span class="xp">'+(x.item.xp*x.count)+' XP</span>'
-        +'<br><span class="why">'+hm(x.item.min)+' · '+xph(x.item).toFixed(0)+' XP/giờ · rút '+(cropCost(x.item)*x.count)+' nông sản · '+(fmtIn(x.item.in)||"—")+'</span>';
+    const d=document.createElement("div"); d.className="step";
+    d.innerHTML='<h3>3 · Bấm máy <span class="why">— tick vào ô sau khi đã cho máy chạy trong game</span></h3>';
+    F.batches.forEach(x=>{
+      const row=document.createElement("div"); row.className="ckrow";
+      const cb=document.createElement("input"); cb.type="checkbox";
+      const tx=document.createElement("div"); tx.className="tx";
+      const forOrder=P.make[x.item.n]?'<span class="pill ok">cho đơn</span> ':'';
+      tx.innerHTML=forOrder+x.item.p+': <b>'+x.item.n+'</b> ×'+x.count
+        +' <span class="xp">'+(x.item.xp*x.count)+' XP</span>'
+        +'<br><span class="why">'+hm(x.item.min)+' · '+xph(x.item).toFixed(0)+' XP/giờ · rút '
+        +(cropCost(x.item)*x.count)+' nông sản · '+(fmtIn(x.item.in)||"—")+'</span>';
+      cb.onchange=()=>{
+        if(!cb.checked) return;
+        cb.disabled=true; row.style.opacity=".55";
+        tx.innerHTML=x.item.p+' — <b style="color:var(--grass)">Đang chạy</b>'
+          +'<br><span class="why">'+x.item.n+' ×'+x.count+' · xem ở khung Đang chạy phía trên</span>';
+        startRun(x.item, x.count);
+      };
+      row.append(cb,tx); d.appendChild(row);
     });
-    out.appendChild(step("3 · Bấm máy", lines));
+    out.appendChild(d);
   } else out.appendChild(step("3 · Bấm máy", ["Không bấm được mẻ nào — kiểm tra ô Chỗ trống ở tab Máy."], "warn"));
 
   // 4 trồng
@@ -954,18 +1052,46 @@ function boot(doLoad){
   S.loginTime=lt.value; lt.onchange=()=>{ S.loginTime=lt.value; save(); };
   $("#ghToken").value=CFG.token||""; $("#ghGist").value=CFG.gist||"";
   if(CFG.last) syncMsg("Lần gần nhất: "+CFG.last+".");
-  renderStock(); renderSrc(); renderMachines(); renderData(); renderOrders(); showXp();
+  renderStock(); renderSrc(); renderMachines(); renderData(); renderOrders(); renderRuns(); showXp();
 }
 $("#btnNow").onclick=()=>{ const v=new Date().toTimeString().slice(0,5); $("#loginTime").value=v; S.loginTime=v; save(); };
 $("#btnPlan").onclick=renderPlan;
 $("#stockFilter").oninput=renderStock;
 $("#dataFilter").oninput=renderData;
 $("#machFilter").oninput=renderMachines;
-$("#btnTruck").onclick=()=>{ const a=parseOrders($("#truckBox").value).slice(0,9);
-  while(a.length<9) a.push(null); S.truck=a; save(); renderOrders(); };
-$("#btnBoat").onclick=()=>{ S.boat=parseOrders($("#boatBox").value); save(); renderOrders(); };
-$("#btnTruckClear").onclick=()=>{ S.truck=[null,null,null,null,null,null,null,null,null]; save(); renderOrders(); };
-$("#btnBoatClear").onclick=()=>{ S.boat=[]; save(); renderOrders(); };
+$("#btnTruck").onclick=()=>{
+  const raw=$("#truckBox").value.trim();
+  if(!raw){ alert("Ô dán đang trống nên không ghi đè gì cả.\n\nBa dòng chữ mờ chỉ là ví dụ. Muốn xóa hết thì bấm nút Xóa hết."); return; }
+  const a=parseOrders(raw).slice(0,9);
+  const cur=(S.truck||[]).filter(Boolean).length;
+  if(!a.length){ alert("Không đọc được dòng nào. Kiểm tra lại cách viết: Bread×2, Cream×3 | 250"); return; }
+  if(cur>a.length && !confirm("Bảng xe đang có "+cur+" đơn, dán vào chỉ "+a.length+".\nGhi đè sẽ mất "+(cur-a.length)+" đơn. Tiếp tục?")) return;
+  snapshot("ghi đè bảng xe");
+  while(a.length<9) a.push(null); S.truck=a; save(); renderOrders();
+};
+$("#btnBoat").onclick=()=>{
+  const raw=$("#boatBox").value.trim();
+  if(!raw){ alert("Ô dán đang trống nên không ghi đè gì cả.\n\nBa dòng chữ mờ chỉ là ví dụ. Muốn xóa hết thì bấm nút Xóa hết."); return; }
+  const a=parseOrders(raw);
+  if(!a.length){ alert("Không đọc được dòng nào."); return; }
+  const cur=(S.boat||[]).length;
+  if(cur>a.length && !confirm("Thuyền đang có "+cur+" ô, dán vào chỉ "+a.length+".\nGhi đè sẽ mất "+(cur-a.length)+" ô. Tiếp tục?")) return;
+  snapshot("ghi đè thuyền");
+  S.boat=a; save(); renderOrders();
+};
+$("#btnTruckClear").onclick=()=>{
+  const cur=(S.truck||[]).filter(Boolean).length;
+  if(cur && !confirm("Xóa cả "+cur+" đơn trên bảng xe?")) return;
+  snapshot("xóa bảng xe");
+  S.truck=[null,null,null,null,null,null,null,null,null]; save(); renderOrders();
+};
+$("#btnBoatClear").onclick=()=>{
+  const cur=(S.boat||[]).length;
+  if(cur && !confirm("Xóa cả "+cur+" ô hàng trên thuyền?")) return;
+  snapshot("xóa thuyền");
+  S.boat=[]; save(); renderOrders();
+};
+$("#btnUndo").onclick=undoOrders;
 $("#btnAddMach").onclick=()=>{
   const el=$("#newMach"), n=el.value.trim(); if(!n) return;
   if(allMachines().includes(n)){ alert("Đã có máy tên này."); return; }
@@ -985,6 +1111,9 @@ $("#btnPastePair").onclick=()=>{ const v=prompt("Dán mã ghép (token|gist):","
   const p=v.trim().split("|"); if(p.length<2){ syncMsg("Sai dạng.",true); return; }
   CFG.token=p[0].trim(); CFG.gist=p[1].trim(); saveCfg();
   $("#ghToken").value=CFG.token; $("#ghGist").value=CFG.gist; syncMsg("Đã điền. Bấm Kéo về trước."); };
+document.querySelectorAll("#p-don details").forEach(d=>{
+  d.addEventListener("toggle",()=>{ if(d.open) syncBoxes(); });
+});
 boot();
 </script>
 </body>
