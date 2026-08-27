@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nông trại — Kế hoạch phiên chơi Hay Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2B2118; --ink-soft:#6B5A46; --hay:#FBF3DF; --hay-deep:#F0E2BC;
+  --barn:#A63426; --grass:#4E8B3C; --sun:#E9A70B; --line:#D8C89B; --white:#FFFDF6;
+  --font:"Lexend",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--hay);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55;padding-bottom:70px}
+h1,h2,h3{font-family:var(--font);font-weight:600;letter-spacing:-.02em;margin:0}
+.wrap{max-width:820px;margin:0 auto;padding:0 14px}
+header.top{background:var(--barn);color:var(--hay);padding:16px 0 14px;border-bottom:5px solid #7E2419}
+header.top h1{font-size:21px}
+header.top p{margin:3px 0 0;font-size:12.5px;opacity:.85}
+nav.tabs{position:sticky;top:0;z-index:20;background:var(--hay-deep);border-bottom:2px solid var(--line);display:flex;overflow-x:auto}
+nav.tabs button{flex:1 0 auto;min-width:78px;background:none;border:none;border-bottom:3px solid transparent;padding:11px 9px;font-size:13.5px;font-weight:600;color:var(--ink-soft);font-family:inherit;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--barn);border-bottom-color:var(--barn);background:var(--white)}
+section.page{display:none;padding-top:14px}
+section.page.on{display:block}
+.card{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:13px}
+.card>h2{font-size:16px}
+.card>.sub{font-size:12.5px;color:var(--ink-soft);margin:3px 0 11px}
+.note{background:#FFF4D6;border:1px solid var(--sun);border-left-width:5px;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:13px}
+.grp-title{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);margin:15px 0 6px}
+.grp-title:first-child{margin-top:0}
+.row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.row:last-child{border-bottom:none}
+.row .nm{flex:1;min-width:0}
+.row .nm b{display:block;font-weight:600;font-size:14px}
+.row .nm span{font-size:11px;color:var(--ink-soft)}
+.stepper{display:flex;align-items:center;gap:4px}
+.stepper button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--hay);font-size:16px;font-weight:700;color:var(--ink);cursor:pointer;line-height:1;font-family:inherit}
+.stepper input{width:52px;height:30px;text-align:center;font-size:14px;font-weight:600;border:1px solid var(--line);border-radius:8px;background:var(--white);color:var(--ink);font-family:inherit}
+input,select,textarea{font-family:inherit;color:var(--ink)}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--grass);outline-offset:1px}
+.fl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.fl label{font-size:13.5px;font-weight:600;flex:1;min-width:150px}
+.fl input,.fl select{height:34px;padding:0 8px;border:1px solid var(--line);border-radius:8px;background:var(--white);font-size:14px}
+.fl input[type=number]{width:88px}
+.fl input[type=time]{width:110px}
+.mach{border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:9px;background:var(--white)}
+.mach .hd{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.mach .hd em{font-size:11px;color:var(--ink-soft);font-style:normal}
+.mname{font-size:14.5px;font-weight:600;color:var(--ink);font-family:inherit;border:1px solid transparent;border-radius:7px;background:transparent;padding:3px 6px;width:15ch}
+.mname:hover{border-color:var(--line)}
+.mname:focus{border-color:var(--grass);background:var(--white)}
+.ctl{display:flex;gap:12px;flex-wrap:wrap}
+.ctl>div{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft)}
+.ctl input{height:30px;padding:0 8px;border:1px solid var(--line);border-radius:8px;background:var(--white);font-size:13.5px;width:64px}
+.prods{margin-top:9px;border-top:1px dashed var(--line);padding-top:7px}
+.prod{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;border-bottom:1px dotted var(--line)}
+.prod:last-child{border-bottom:none}
+.prod .pn{flex:1;min-width:0}
+.prod .pn b{font-weight:600;display:block}
+.prod .pn span{color:var(--ink-soft);font-size:11px}
+.prod .no{color:var(--barn);font-weight:600}
+.xbtn{border:none;background:none;color:var(--barn);font-size:16px;cursor:pointer;padding:2px 6px;font-family:inherit}
+.addform{background:var(--hay);border:1px solid var(--line);border-radius:9px;padding:10px;margin-top:8px;display:none}
+.addform.on{display:block}
+.addform input{width:100%;height:32px;padding:0 8px;margin-bottom:6px;border:1px solid var(--line);border-radius:7px;background:var(--white);font-size:13px}
+.addform .two{display:flex;gap:6px}
+.addform .two input{width:50%}
+.mrow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.btn-main{display:block;width:100%;padding:15px;border:none;border-radius:12px;background:var(--grass);color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 3px 0 #35662A}
+.btn-main:active{transform:translateY(2px);box-shadow:0 1px 0 #35662A}
+.btn-lite{padding:8px 13px;border:1px solid var(--line);border-radius:9px;background:var(--hay);font-size:13px;font-weight:600;font-family:inherit;color:var(--ink);cursor:pointer}
+.step{border-left:4px solid var(--grass);background:var(--white);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.step.warn{border-left-color:var(--sun)}
+.step.bad{border-left-color:var(--barn)}
+.step.blue{border-left-color:#3C6E8B}
+.step h3{font-size:14.5px;margin-bottom:6px}
+.step ul{margin:0;padding-left:18px}
+.step li{margin:4px 0;font-size:13.5px}
+.step li .why{color:var(--ink-soft);font-size:11.5px}
+.step li .xp{color:var(--grass);font-weight:700;font-size:12px}
+.empty{color:var(--ink-soft);font-size:13px;font-style:italic}
+.tally{display:flex;gap:9px;margin-bottom:13px;flex-wrap:wrap}
+.tally div{flex:1;min-width:104px;background:var(--barn);color:var(--hay);border-radius:10px;padding:9px 11px}
+.tally b{display:block;font-size:23px;font-weight:700;letter-spacing:-.03em}
+.tally span{font-size:10.5px;opacity:.85;text-transform:uppercase;letter-spacing:.07em}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);padding:6px 4px;border-bottom:2px solid var(--line)}
+td{padding:4px;border-bottom:1px solid var(--line)}
+td input{width:100%;min-width:44px;padding:5px 6px;border:1px solid transparent;border-radius:6px;background:transparent;font-size:12.5px}
+td input:hover{border-color:var(--line)}
+td input:focus{border-color:var(--grass);background:var(--white)}
+td.num input{text-align:right}
+.tbl-scroll{overflow-x:auto}
+textarea.big{width:100%;min-height:110px;border:1px solid var(--line);border-radius:9px;padding:9px;font-size:13px;font-family:ui-monospace,monospace;background:var(--white)}
+.slot{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.slot:last-child{border-bottom:none}
+.slot .no{width:22px;font-size:11.5px;color:var(--ink-soft);font-weight:700;flex:none}
+.slot input.oi{flex:1;min-width:0;height:32px;padding:0 8px;border:1px solid var(--line);border-radius:7px;background:var(--white);font-size:13px}
+.slot input.oi.empty{background:var(--hay);border-style:dashed}
+.slot .st{flex:none;width:66px;text-align:center}
+.slot button{flex:none}
+.ordrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.ordrow:last-child{border-bottom:none}
+.ordrow .oi{flex:1}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:99px;margin-right:6px}
+.pill.ok{background:#E2F0D9;color:#2F5E22}
+.pill.no{background:#F6DED9;color:#7E2419}
+.saveflag{font-size:12px;color:var(--grass);font-weight:600;height:16px}
+footer{padding:18px 0 8px;font-size:12px;color:var(--ink-soft);text-align:center}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <h1>Kế hoạch phiên chơi</h1>
+  <p>Hay Day · chạy xe tải &amp; đua thuyền · level 80</p>
+</div></header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="ke">Kế hoạch</button>
+  <button role="tab" aria-selected="false" data-tab="don">Đơn hàng</button>
+  <button role="tab" aria-selected="false" data-tab="kho">Kho</button>
+  <button role="tab" aria-selected="false" data-tab="nong">Nông trại</button>
+  <button role="tab" aria-selected="false" data-tab="may">Máy</button>
+  <button role="tab" aria-selected="false" data-tab="du">Dữ liệu</button>
+</nav>
+
+<div class="wrap">
+
+<!-- ===== KẾ HOẠCH ===== -->
+<section class="page on" id="p-ke">
+  <div class="card">
+    <h2>Phiên này</h2>
+    <div class="fl">
+      <label for="loginTime">Giờ bạn vào game</label>
+      <input type="time" id="loginTime">
+      <button class="btn-lite" id="btnNow">Bây giờ</button>
+    </div>
+    <div class="fl">
+      <label for="mode">Ưu tiên</label>
+      <select id="mode">
+        <option value="orders">Hoàn thành đơn xe + thuyền</option>
+        <option value="xp">XP mỗi giờ cao nhất</option>
+        <option value="silo">Giải phóng silo</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn-main" id="btnPlan">Lên kế hoạch</button>
+  <div style="height:13px"></div>
+  <div id="planOut"><p class="empty">Nhập đơn hàng và tồn kho rồi bấm nút ở trên.</p></div>
+</section>
+
+<!-- ===== ĐƠN HÀNG ===== -->
+<section class="page" id="p-don">
+  <div class="note">
+    Mỗi dòng một đơn. Viết <code>Bread×2, Cream×3</code>, thêm <code>| 250</code> ở cuối nếu muốn ghi XP thưởng.
+    Xong bảng xe thì xóa hết, dán bảng mới vào.
+  </div>
+
+  <div class="card">
+    <h2>Xe tải <span class="sub" id="truckCount" style="font-weight:400"></span></h2>
+    <p class="sub">9 ô trên bảng. Sửa thẳng từng ô, hoặc dán cả bảng ở dưới.</p>
+    <div id="truckSlots"></div>
+    <details style="margin-top:12px">
+      <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-soft)">Dán cả bảng cùng lúc</summary>
+      <textarea class="big" id="truckBox" style="margin-top:8px" placeholder="Bread×2, Cream×3 | 250&#10;Cheese×1, Egg×4 | 180"></textarea>
+      <div class="mrow">
+        <button class="btn-lite" id="btnTruck">Ghi đè 9 ô</button>
+        <button class="btn-lite" id="btnTruckClear">Xóa hết</button>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Thuyền</h2>
+    <p class="sub">Mỗi dòng một ô hàng trên thuyền.</p>
+    <textarea class="big" id="boatBox" placeholder="Bread×9, Cotton Fabric×6&#10;Cheese×8, Popcorn×9"></textarea>
+    <div class="mrow">
+      <button class="btn-lite" id="btnBoat">Cập nhật thuyền</button>
+      <button class="btn-lite" id="btnBoatClear">Xóa hết</button>
+    </div>
+    <div class="fl" style="margin-top:12px">
+      <label for="boatEta">Thuyền tới sau (phút) — 0 nếu đang đậu</label>
+      <input type="number" id="boatEta" min="0" value="0">
+    </div>
+    <div class="fl">
+      <label for="boatDue">Hạn giao còn (phút)</label>
+      <input type="number" id="boatDue" min="0" value="0">
+    </div>
+    <div id="boatList" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<!-- ===== KHO ===== -->
+<section class="page" id="p-kho">
+  <div class="card">
+    <h2>Sức chứa</h2>
+    <div class="fl"><label for="capSilo">Tháp nông sản</label><input type="number" id="capSilo" min="0" step="25"></div>
+    <div class="fl"><label for="capBarn">Kho vật phẩm</label><input type="number" id="capBarn" min="0" step="25"></div>
+  </div>
+  <div class="card">
+    <h2>Trong kho</h2>
+    <p class="sub" id="khoSub">—</p>
+    <div class="fl"><label for="stockFilter">Lọc nhanh</label>
+      <input type="text" id="stockFilter" placeholder="gõ tên món..." style="flex:2;min-width:160px"></div>
+    <div id="stockList"></div>
+  </div>
+</section>
+
+<!-- ===== NÔNG TRẠI ===== -->
+<section class="page" id="p-nong">
+  <div class="note">
+    Chỗ này khai <b>nguồn thu không phải máy</b>: ruộng, cây, bụi, chuồng, ao cá, mỏ.
+    Điền số đang <b>sẵn sàng thu ngay</b>, và số phút còn lại của lứa đang chờ.
+  </div>
+  <div class="card">
+    <h2>Ruộng</h2>
+    <div class="fl"><label for="plotsFree">Ô ruộng đang trống</label><input type="number" id="plotsFree" min="0"></div>
+    <div class="fl"><label for="plotsTotal">Tổng số ô ruộng</label><input type="number" id="plotsTotal" min="0"></div>
+  </div>
+  <div class="card">
+    <h2>Nguồn thu khác</h2>
+    <p class="sub">Bỏ trống cái nào bạn không có.</p>
+    <div id="srcList"></div>
+  </div>
+</section>
+
+<!-- ===== MÁY ===== -->
+<section class="page" id="p-may">
+  <div class="note">
+    <b>Số máy</b> = có mấy cái loại đó. <b>Chỗ trống</b> = tổng số mẻ còn bấm thêm được của tất cả các máy cùng loại.
+    <b>Còn (phút)</b>: nhiều máy thì ghi cách nhau dấu phẩy, ví dụ <code>20, 95</code>.
+  </div>
+  <div class="card">
+    <h2>Máy chế biến</h2>
+    <div id="machineList"></div>
+    <div class="mrow">
+      <input id="newMach" placeholder="Tên máy mới, ví dụ: Hat Maker"
+        style="flex:1;min-width:170px;height:36px;padding:0 10px;border:1px solid var(--line);border-radius:9px;background:var(--white);font-size:14px">
+      <button class="btn-lite" id="btnAddMach">+ Thêm máy</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DỮ LIỆU ===== -->
+<section class="page" id="p-du">
+  <div class="card">
+    <h2>Mục tiêu cấp độ</h2>
+    <div class="fl"><label for="xpNow">XP hiện tại</label><input type="number" id="xpNow" min="0"></div>
+    <div class="fl"><label for="xpNeed">XP để lên cấp sau</label><input type="number" id="xpNeed" min="0"></div>
+    <p class="sub" id="xpLeft">—</p>
+  </div>
+
+  <div class="card">
+    <h2>Đồng bộ</h2>
+    <p class="sub">Dùng chung một gist GitHub cho máy tính và điện thoại.</p>
+    <input id="ghToken" type="password" placeholder="Mã truy cập GitHub (ghp_...)" autocomplete="off"
+      style="width:100%;height:36px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--white);font-size:13px;margin-bottom:8px">
+    <input id="ghGist" placeholder="Mã kho dữ liệu (gist)" autocomplete="off"
+      style="width:100%;height:36px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--white);font-size:13px">
+    <div class="mrow">
+      <button class="btn-lite" id="btnPull">Kéo về</button>
+      <button class="btn-lite" id="btnPush">Đẩy lên</button>
+      <button class="btn-lite" id="btnCopyPair">Sao chép mã ghép</button>
+      <button class="btn-lite" id="btnPastePair">Dán mã ghép</button>
+    </div>
+    <p class="sub" id="syncMsg" style="margin-top:9px">Chưa đồng bộ lần nào.</p>
+  </div>
+
+  <div class="card">
+    <h2>Bảng vật phẩm</h2>
+    <p class="sub">Sửa Phút và XP cho khớp game của bạn. Công thức viết <code>Wheat×2, Egg×1</code>.</p>
+    <div class="fl"><label for="dataFilter">Lọc</label>
+      <input type="text" id="dataFilter" placeholder="tên món hoặc tên máy..." style="flex:2;min-width:160px"></div>
+    <div class="tbl-scroll"><table id="dataTable">
+      <thead><tr><th>Tên</th><th>Nơi làm</th><th style="width:56px">Phút</th><th style="width:52px">XP</th><th style="width:170px">Nguyên liệu</th></tr></thead>
+      <tbody></tbody></table></div>
+    <div class="mrow"><button class="btn-lite" id="btnReset">Khôi phục bảng gốc</button></div>
+  </div>
+
+  <div class="card">
+    <h2>Sao lưu ra tệp</h2>
+    <div class="mrow">
+      <button class="btn-lite" id="btnExport">Xuất</button>
+      <button class="btn-lite" id="btnImport">Nhập</button>
+    </div>
+    <div style="height:9px"></div>
+    <textarea id="ioBox" class="big" style="display:none"></textarea>
+  </div>
+</section>
+
+<footer><span class="saveflag" id="saveFlag"></span><br>Công cụ tự làm, không liên kết với Supercell.</footer>
+</div>
+
+<script>
+const BASE = [{"n": "Wheat", "k": "crop", "p": "Field", "min": 2, "xp": 1, "in": {}, "q": 75}, {"n": "Corn", "k": "crop", "p": "Field", "min": 6, "xp": 1, "in": {}, "q": 42}, {"n": "Soyabean", "k": "crop", "p": "Field", "min": 24, "xp": 2, "in": {}, "q": 47}, {"n": "Sugarcane", "k": "crop", "p": "Field", "min": 35, "xp": 3, "in": {}, "q": 60}, {"n": "Carrot", "k": "crop", "p": "Field", "min": 12, "xp": 2, "in": {}, "q": 29}, {"n": "Indigo", "k": "crop", "p": "Field", "min": 141, "xp": 5, "in": {}, "q": 70}, {"n": "Pumpkin", "k": "crop", "p": "Field", "min": 212, "xp": 6, "in": {}, "q": 58}, {"n": "Cotton", "k": "crop", "p": "Field", "min": 176, "xp": 6, "in": {}, "q": 49}, {"n": "Chili Pepper", "k": "crop", "p": "Field", "min": 282, "xp": 4, "in": {}, "q": 60}, {"n": "Black Bean", "k": "crop", "p": "Field", "min": 12, "xp": 2, "in": {}, "q": 6}, {"n": "Tomato", "k": "crop", "p": "Field", "min": 424, "xp": 8, "in": {}, "q": 37}, {"n": "Strawberry", "k": "crop", "p": "Field", "min": 565, "xp": 10, "in": {}, "q": 58}, {"n": "Potato", "k": "crop", "p": "Field", "min": 259, "xp": 7, "in": {}, "q": 49}, {"n": "Chamomile", "k": "crop", "p": "Field", "min": 24, "xp": 2, "in": {}, "q": 49}, {"n": "Sesame", "k": "crop", "p": "Field", "min": 71, "xp": 4, "in": {}, "q": 0}, {"n": "Lily", "k": "crop", "p": "Field", "min": 106, "xp": 5, "in": {}, "q": 63}, {"n": "Rice", "k": "crop", "p": "Field", "min": 53, "xp": 3, "in": {}, "q": 74}, {"n": "Lettuce", "k": "crop", "p": "Field", "min": 247, "xp": 7, "in": {}, "q": 58}, {"n": "Garlic", "k": "crop", "p": "Field", "min": 35, "xp": 3, "in": {}, "q": 57}, {"n": "Sunflower", "k": "crop", "p": "Field", "min": 106, "xp": 5, "in": {}, "q": 65}, {"n": "Cabbage", "k": "crop", "p": "Field", "min": 53, "xp": 3, "in": {}, "q": 58}, {"n": "Onion", "k": "crop", "p": "Field", "min": 353, "xp": 8, "in": {}, "q": 91}, {"n": "Cucumber", "k": "crop", "p": "Field", "min": 41, "xp": 3, "in": {}, "q": 46}, {"n": "Beetroot", "k": "crop", "p": "Field", "min": 47, "xp": 3, "in": {}, "q": 48}, {"n": "Bell Pepper", "k": "crop", "p": "Field", "min": 318, "xp": 7, "in": {}, "q": 65}, {"n": "Ginger", "k": "crop", "p": "Field", "min": 176, "xp": 6, "in": {}, "q": 69}, {"n": "Tea Leaf", "k": "crop", "p": "Field", "min": 459, "xp": 9, "in": {}, "q": 293}, {"n": "Pineapple", "k": "crop", "p": "Field", "min": 35, "xp": 3, "in": {}, "q": 42}, {"n": "Asparagus", "k": "crop", "p": "Field", "min": 424, "xp": 8, "in": {}, "q": 73}, {"n": "Apple", "k": "crop", "p": "Tree", "min": 1129, "xp": 7, "in": {}, "q": 46}, {"n": "Cherry", "k": "crop", "p": "Tree", "min": 1906, "xp": 13, "in": {}, "q": 40}, {"n": "Raspberry", "k": "crop", "p": "Bush", "min": 1271, "xp": 9, "in": {}, "q": 14}, {"n": "Blackberry", "k": "crop", "p": "Bush", "min": 2259, "xp": 16, "in": {}, "q": 8}, {"n": "Blueberry", "k": "crop", "p": "Bush", "min": 2400, "xp": 16, "in": {}, "q": 74}, {"n": "Orange", "k": "crop", "p": "Tree", "min": 2188, "xp": 19, "in": {}, "q": 21}, {"n": "Peach", "k": "crop", "p": "Tree", "min": 2118, "xp": 20, "in": {}, "q": 12}, {"n": "Olive", "k": "crop", "p": "Tree", "min": 1694, "xp": 17, "in": {}, "q": 0}, {"n": "Lemon", "k": "crop", "p": "Tree", "min": 2047, "xp": 18, "in": {}, "q": 0}, {"n": "Cacao", "k": "crop", "p": "Tree", "min": 2400, "xp": 16, "in": {}, "q": 0}, {"n": "Coffee Bean", "k": "crop", "p": "Bush", "min": 1765, "xp": 12, "in": {}, "q": 0}, {"n": "Peanuts", "k": "crop", "p": "Squirrel House", "min": 0, "xp": 43, "in": {}, "q": 9}, {"n": "Unknown 1 (83)", "k": "crop", "p": "Field", "min": 0, "xp": 0, "in": {}, "q": 83}, {"n": "Unknown 2 (1)", "k": "crop", "p": "Field", "min": 0, "xp": 0, "in": {}, "q": 1}, {"n": "Egg", "k": "animal", "p": "Chicken", "min": 24, "xp": 2, "in": {"Chicken Feed": 1}, "q": 0}, {"n": "Milk", "k": "animal", "p": "Cow", "min": 71, "xp": 3, "in": {"Cow Feed": 1}, "q": 26}, {"n": "Goat Milk", "k": "animal", "p": "Goat", "min": 565, "xp": 6, "in": {"Goat Feed": 1}, "q": 0}, {"n": "Bacon", "k": "animal", "p": "Pig", "min": 282, "xp": 5, "in": {"Pig Feed": 1}, "q": 23}, {"n": "Wool", "k": "animal", "p": "Sheep", "min": 424, "xp": 5, "in": {"Sheep Feed": 1}, "q": 36}, {"n": "Lamb Chop", "k": "animal", "p": "Lamb", "min": 35, "xp": 4, "in": {"Lamb Feed": 1}, "q": 0}, {"n": "Duck Feather", "k": "animal", "p": "Duck Salon", "min": 212, "xp": 17, "in": {}, "q": 72}, {"n": "Honeycomb", "k": "animal", "p": "Beehive Tree", "min": 0, "xp": 8, "in": {}, "q": 0}, {"n": "Fish Fillet", "k": "animal", "p": "Fish", "min": 0, "xp": 20, "in": {}, "q": 63}, {"n": "Silver Ore", "k": "animal", "p": "Mine", "min": 0, "xp": 5, "in": {}, "q": 0}, {"n": "Gold Ore", "k": "animal", "p": "Mine", "min": 0, "xp": 6, "in": {}, "q": 0}, {"n": "Platinum Ore", "k": "animal", "p": "Mine", "min": 0, "xp": 7, "in": {}, "q": 0}, {"n": "Iron Ore", "k": "animal", "p": "Mine", "min": 0, "xp": 4, "in": {}, "q": 0}, {"n": "Coal", "k": "animal", "p": "Mine", "min": 0, "xp": 3, "in": {}, "q": 80}, {"n": "Diamond", "k": "animal", "p": "Mine", "min": 0, "xp": 0, "in": {}, "q": 0}, {"n": "Lobster", "k": "animal", "p": "Lobster Pool", "min": 0, "xp": 0, "in": {}, "q": 0}, {"n": "Lobster Tail", "k": "animal", "p": "Lobster Pool", "min": 424, "xp": 24, "in": {"Lobster": 1}, "q": 0}, {"n": "Bread", "k": "good", "p": "Bakery", "min": 5, "xp": 3, "in": {"Wheat": 3}, "q": 56}, {"n": "Corn Bread", "k": "good", "p": "Bakery", "min": 29, "xp": 8, "in": {"Corn": 2, "Egg": 2}, "q": 0}, {"n": "Cookie", "k": "good", "p": "Bakery", "min": 60, "xp": 13, "in": {"Brown Sugar": 1, "Egg": 2, "Wheat": 2}, "q": 101}, {"n": "Raspberry Muffin", "k": "good", "p": "Bakery", "min": 45, "xp": 17, "in": {"Egg": 1, "Raspberry": 2, "Wheat": 2}, "q": 0}, {"n": "Blackberry Muffin", "k": "good", "p": "Bakery", "min": 45, "xp": 27, "in": {"Blackberry": 2, "Egg": 2, "Wheat": 1}, "q": 0}, {"n": "Blueberry Muffin", "k": "good", "p": "Bakery", "min": 45, "xp": 28, "in": {"Blueberry": 2, "Egg": 2, "Wheat": 1}, "q": 0}, {"n": "Pizza", "k": "good", "p": "Bakery", "min": 14, "xp": 23, "in": {"Cheese": 1, "Tomato": 1, "Wheat": 2}, "q": 0}, {"n": "Spicy Pizza", "k": "good", "p": "Bakery", "min": 14, "xp": 27, "in": {"Cheese": 1, "Chili Pepper": 1, "Tomato": 1, "Wheat": 2}, "q": 0}, {"n": "Potato Bread", "k": "good", "p": "Bakery", "min": 45, "xp": 34, "in": {"Butter": 1, "Egg": 3, "Potato": 2, "White Sugar": 1}, "q": 0}, {"n": "Chicken Feed", "k": "good", "p": "Feed Mill", "min": 5, "xp": 1, "in": {"Corn": 1, "Wheat": 2}, "q": 0}, {"n": "Cow Feed", "k": "good", "p": "Feed Mill", "min": 9, "xp": 2, "in": {"Corn": 1, "Soyabean": 2}, "q": 0}, {"n": "Pig Feed", "k": "good", "p": "Feed Mill", "min": 20, "xp": 2, "in": {"Carrot": 2, "Soyabean": 1}, "q": 0}, {"n": "Sheep Feed", "k": "good", "p": "Feed Mill", "min": 29, "xp": 3, "in": {"Soyabean": 1, "Wheat": 3}, "q": 0}, {"n": "Goat Feed", "k": "good", "p": "Feed Mill", "min": 40, "xp": 3, "in": {"Carrot": 2, "Corn": 1, "Wheat": 1}, "q": 0}, {"n": "Lamb Feed", "k": "good", "p": "Feed Mill", "min": 9, "xp": 4, "in": {"Black Bean": 4, "Soyabean": 2}, "q": 0}, {"n": "Wheat Bundle", "k": "good", "p": "Feed Mill", "min": 89, "xp": 10, "in": {"Wheat": 75}, "q": 0}, {"n": "Meat Bucket", "k": "good", "p": "Feed Mill", "min": 45, "xp": 15, "in": {"Fish Fillet": 3, "Carrot": 5}, "q": 0}, {"n": "Cream", "k": "good", "p": "Dairy", "min": 20, "xp": 6, "in": {"Milk": 1}, "q": 40}, {"n": "Butter", "k": "good", "p": "Dairy", "min": 29, "xp": 10, "in": {"Milk": 2}, "q": 79}, {"n": "Cheese", "k": "good", "p": "Dairy", "min": 60, "xp": 15, "in": {"Milk": 3}, "q": 83}, {"n": "Goat Cheese", "k": "good", "p": "Dairy", "min": 89, "xp": 19, "in": {"Goat Milk": 2}, "q": 100}, {"n": "Brown Sugar", "k": "good", "p": "Sugar Mill", "min": 20, "xp": 4, "in": {"Sugarcane": 1}, "q": 93}, {"n": "White Sugar", "k": "good", "p": "Sugar Mill", "min": 40, "xp": 6, "in": {"Sugarcane": 2}, "q": 76}, {"n": "Syrup", "k": "good", "p": "Sugar Mill", "min": 89, "xp": 11, "in": {"Sugarcane": 4}, "q": 94}, {"n": "Popcorn", "k": "good", "p": "Popcorn Pot", "min": 29, "xp": 4, "in": {"Corn": 2}, "q": 22}, {"n": "Buttered Popcorn", "k": "good", "p": "Popcorn Pot", "min": 60, "xp": 15, "in": {"Butter": 1, "Corn": 2}, "q": 0}, {"n": "Chili Popcorn", "k": "good", "p": "Popcorn Pot", "min": 120, "xp": 15, "in": {"Chili Pepper": 2, "Corn": 2}, "q": 0}, {"n": "Honey Popcorn", "k": "good", "p": "Popcorn Pot", "min": 89, "xp": 43, "in": {"Corn": 2, "Honey": 2}, "q": 0}, {"n": "Chocolate Popcorn", "k": "good", "p": "Popcorn Pot", "min": 149, "xp": 29, "in": {"Cacao": 2, "Corn": 2}, "q": 0}, {"n": "Snack Mix", "k": "good", "p": "Popcorn Pot", "min": 45, "xp": 50, "in": {"Corn": 2, "Sesame": 1, "Peanuts": 1}, "q": 0}, {"n": "Pancake", "k": "good", "p": "Bbq Grill", "min": 29, "xp": 13, "in": {"Brown Sugar": 1, "Egg": 3}, "q": 111}, {"n": "Bacon And Eggs", "k": "good", "p": "Bbq Grill", "min": 60, "xp": 24, "in": {"Bacon": 2, "Egg": 4}, "q": 0}, {"n": "Hamburger", "k": "good", "p": "Bbq Grill", "min": 120, "xp": 22, "in": {"Bacon": 2, "Bread": 2}, "q": 0}, {"n": "Roasted Tomatoes", "k": "good", "p": "Bbq Grill", "min": 89, "xp": 14, "in": {"Tomato": 2}, "q": 0}, {"n": "Baked Potato", "k": "good", "p": "Bbq Grill", "min": 34, "xp": 36, "in": {"Cheese": 1, "Chili Pepper": 1, "Cream": 1, "Potato": 2}, "q": 0}, {"n": "Garlic Bread", "k": "good", "p": "Bbq Grill", "min": 14, "xp": 24, "in": {"Bread": 2, "Butter": 1, "Garlic": 4}, "q": 0}, {"n": "Grilled Onion", "k": "good", "p": "Bbq Grill", "min": 60, "xp": 23, "in": {"Butter": 1, "Onion": 2}, "q": 0}, {"n": "Grilled Asparagus", "k": "good", "p": "Bbq Grill", "min": 74, "xp": 58, "in": {"Asparagus": 5, "Bacon": 3, "Lemon": 1}, "q": 0}, {"n": "Winter Veggies", "k": "good", "p": "Bbq Grill", "min": 25, "xp": 24, "in": {"Beetroot": 2, "Carrot": 3, "Potato": 2, "Pumpkin": 2}, "q": 0}, {"n": "Stuffed Peppers", "k": "good", "p": "Bbq Grill", "min": 20, "xp": 42, "in": {"Bell Pepper": 3, "Bacon": 1, "Rice": 3, "Cheese": 1}, "q": 0}, {"n": "Grilled Lamb Skewer", "k": "good", "p": "Bbq Grill", "min": 20, "xp": 11, "in": {"Lamb Chop": 2}, "q": 0}, {"n": "Fish And Chips", "k": "good", "p": "Bbq Grill", "min": 89, "xp": 29, "in": {"Fish Fillet": 2, "Potato": 3}, "q": 0}, {"n": "Fish Burger", "k": "good", "p": "Bbq Grill", "min": 120, "xp": 27, "in": {"Bread": 2, "Chili Pepper": 1, "Fish Fillet": 2}, "q": 0}, {"n": "Carrot Pie", "k": "good", "p": "Pie Oven", "min": 60, "xp": 10, "in": {"Carrot": 3, "Egg": 1, "Wheat": 2}, "q": 0}, {"n": "Pumpkin Pie", "k": "good", "p": "Pie Oven", "min": 120, "xp": 19, "in": {"Egg": 1, "Pumpkin": 3, "Wheat": 2}, "q": 0}, {"n": "Bacon Pie", "k": "good", "p": "Pie Oven", "min": 180, "xp": 26, "in": {"Bacon": 3, "Egg": 1, "Wheat": 2}, "q": 0}, {"n": "Apple Pie", "k": "good", "p": "Pie Oven", "min": 149, "xp": 32, "in": {"Apple": 3, "Egg": 1, "Syrup": 1, "Wheat": 2}, "q": 0}, {"n": "Feta Pie", "k": "good", "p": "Pie Oven", "min": 89, "xp": 26, "in": {"Egg": 1, "Goat Cheese": 1, "Wheat": 2}, "q": 0}, {"n": "Fish Pie", "k": "good", "p": "Pie Oven", "min": 120, "xp": 27, "in": {"Egg": 1, "Fish Fillet": 3, "Wheat": 2}, "q": 0}, {"n": "Casserole", "k": "good", "p": "Pie Oven", "min": 120, "xp": 44, "in": {"Bacon": 2, "Cheese": 1, "Egg": 2, "Potato": 2}, "q": 0}, {"n": "Shepherds Pie", "k": "good", "p": "Pie Oven", "min": 100, "xp": 34, "in": {"Bacon": 2, "Carrot": 2, "Potato": 2, "Pumpkin": 2}, "q": 0}, {"n": "Asparagus Quiche", "k": "good", "p": "Pie Oven", "min": 120, "xp": 36, "in": {"Asparagus": 2, "Egg": 2, "Cheese": 1, "Wheat": 4}, "q": 0}, {"n": "Chocolate Pie", "k": "good", "p": "Pie Oven", "min": 74, "xp": 70, "in": {"Wheat": 3, "Cacao": 3, "Egg": 1, "Peanuts": 1}, "q": 0}, {"n": "Lemon Pie", "k": "good", "p": "Pie Oven", "min": 134, "xp": 53, "in": {"Egg": 1, "Lemon Curd": 1, "Wheat": 2}, "q": 0}, {"n": "Sweater", "k": "good", "p": "Loom", "min": 120, "xp": 18, "in": {"Wool": 2}, "q": 0}, {"n": "Blue Wolly Hat", "k": "good", "p": "Loom", "min": 60, "xp": 13, "in": {"Indigo": 1, "Wool": 1}, "q": 0}, {"n": "Blue Sweater", "k": "good", "p": "Loom", "min": 180, "xp": 25, "in": {"Indigo": 2, "Wool": 2}, "q": 0}, {"n": "Cotton Fabric", "k": "good", "p": "Loom", "min": 29, "xp": 13, "in": {"Cotton": 3}, "q": 74}, {"n": "Red Scarf", "k": "good", "p": "Loom", "min": 149, "xp": 34, "in": {"Strawberry": 2, "Wool": 2}, "q": 0}, {"n": "Flower Shawl", "k": "good", "p": "Loom", "min": 89, "xp": 35, "in": {"Wool": 2, "Sunflower": 3, "Blackberry": 1}, "q": 0}, {"n": "Cotton Shirt", "k": "good", "p": "Sewing Machine", "min": 45, "xp": 29, "in": {"Cotton Fabric": 2}, "q": 0}, {"n": "Wooly Chaps", "k": "good", "p": "Sewing Machine", "min": 89, "xp": 37, "in": {"Cotton Fabric": 1, "Wool": 3}, "q": 0}, {"n": "Violet Dress", "k": "good", "p": "Sewing Machine", "min": 134, "xp": 39, "in": {"Cotton Fabric": 2, "Indigo": 1, "Raspberry": 1}, "q": 0}, {"n": "Soothing Pad", "k": "good", "p": "Sewing Machine", "min": 60, "xp": 39, "in": {"Cotton Fabric": 2, "Wheat": 5, "Chamomile": 5}, "q": 0}, {"n": "Pillow", "k": "good", "p": "Sewing Machine", "min": 180, "xp": 81, "in": {"Cotton Fabric": 2, "Duck Feather": 3}, "q": 0}, {"n": "Blanket", "k": "good", "p": "Sewing Machine", "min": 209, "xp": 131, "in": {"Cotton Fabric": 3, "Duck Feather": 5, "Pumpkin": 1}, "q": 0}, {"n": "Carrot Cake", "k": "good", "p": "Cake Oven", "min": 89, "xp": 20, "in": {"Brown Sugar": 1, "Butter": 1, "Carrot": 2}, "q": 0}, {"n": "Cream Cake", "k": "good", "p": "Cake Oven", "min": 180, "xp": 26, "in": {"Cream": 1, "White Sugar": 1, "Wheat": 5}, "q": 0}, {"n": "Red Berry Cake", "k": "good", "p": "Cake Oven", "min": 60, "xp": 31, "in": {"Cherry": 2, "Egg": 1, "Milk": 1, "Raspberry": 1}, "q": 0}, {"n": "Cheesecake", "k": "good", "p": "Cake Oven", "min": 240, "xp": 34, "in": {"Cheese": 1, "Cookie": 1}, "q": 0}, {"n": "Blueberry Cheesecake", "k": "good", "p": "Cake Oven", "min": 240, "xp": 60, "in": {"Cheesecake": 1, "Blueberry": 2}, "q": 0}, {"n": "Strawberry Cake", "k": "good", "p": "Cake Oven", "min": 180, "xp": 38, "in": {"Cream": 1, "Strawberry": 2, "Wheat": 3, "White Sugar": 1}, "q": 0}, {"n": "Chocolate Cake", "k": "good", "p": "Cake Oven", "min": 120, "xp": 38, "in": {"Butter": 1, "Cacao": 2, "Brown Sugar": 1}, "q": 0}, {"n": "Potato Feta Cake", "k": "good", "p": "Cake Oven", "min": 120, "xp": 37, "in": {"Egg": 4, "Goat Cheese": 1, "Potato": 1}, "q": 0}, {"n": "Honey Apple Cake", "k": "good", "p": "Cake Oven", "min": 200, "xp": 57, "in": {"Apple": 2, "Egg": 2, "Honey": 2, "Wheat": 2}, "q": 0}, {"n": "Pineapple Cake", "k": "good", "p": "Cake Oven", "min": 74, "xp": 31, "in": {"Pineapple": 3, "Egg": 2, "Cherry": 2, "Wheat": 4}, "q": 0}, {"n": "Fancy Cake", "k": "good", "p": "Cake Oven", "min": 14, "xp": 49, "in": {"Cream Cake": 1, "Lily": 3, "Raspberry": 3, "Gold Ore": 1}, "q": 0}, {"n": "Lemon Cake", "k": "good", "p": "Cake Oven", "min": 149, "xp": 107, "in": {"Cream": 1, "Egg": 2, "Lemon Curd": 2, "Wheat": 3}, "q": 0}, {"n": "Silver Bar", "k": "good", "p": "Smelter", "min": 480, "xp": 14, "in": {"Silver Ore": 3}, "q": 69}, {"n": "Gold Bar", "k": "good", "p": "Smelter", "min": 720, "xp": 18, "in": {"Gold Ore": 3}, "q": 102}, {"n": "Platinum Bar", "k": "good", "p": "Smelter", "min": 960, "xp": 21, "in": {"Platinum Ore": 3}, "q": 93}, {"n": "Iron Bar", "k": "good", "p": "Smelter", "min": 420, "xp": 15, "in": {"Iron Ore": 3}, "q": 0}, {"n": "Refined Coal", "k": "good", "p": "Smelter", "min": 360, "xp": 13, "in": {"Coal": 3}, "q": 0}, {"n": "Carrot Juice", "k": "good", "p": "Juice Press", "min": 29, "xp": 6, "in": {"Carrot": 3}, "q": 0}, {"n": "Apple Juice", "k": "good", "p": "Juice Press", "min": 120, "xp": 15, "in": {"Apple": 2}, "q": 0}, {"n": "Cherry Juice", "k": "good", "p": "Juice Press", "min": 149, "xp": 26, "in": {"Cherry": 2}, "q": 0}, {"n": "Tomato Juice", "k": "good", "p": "Juice Press", "min": 89, "xp": 19, "in": {"Tomato": 3}, "q": 0}, {"n": "Berry Juice", "k": "good", "p": "Juice Press", "min": 180, "xp": 24, "in": {"Blackberry": 1, "Raspberry": 1}, "q": 0}, {"n": "Pineapple Juice", "k": "good", "p": "Juice Press", "min": 45, "xp": 8, "in": {"Pineapple": 3}, "q": 0}, {"n": "Orange Juice", "k": "good", "p": "Juice Press", "min": 120, "xp": 28, "in": {"Orange": 2}, "q": 0}, {"n": "Apple Jam", "k": "good", "p": "Jam Maker", "min": 360, "xp": 26, "in": {"Apple": 3}, "q": 0}, {"n": "Raspberry Jam", "k": "good", "p": "Jam Maker", "min": 420, "xp": 30, "in": {"Raspberry": 3}, "q": 0}, {"n": "Blackberry Jam", "k": "good", "p": "Jam Maker", "min": 480, "xp": 46, "in": {"Blackberry": 3}, "q": 0}, {"n": "Cherry Jam", "k": "good", "p": "Jam Maker", "min": 420, "xp": 40, "in": {"Cherry": 3}, "q": 0}, {"n": "Strawberry Jam", "k": "good", "p": "Jam Maker", "min": 449, "xp": 32, "in": {"Strawberry": 3}, "q": 0}, {"n": "Blueberry Chutney", "k": "good", "p": "Jam Maker", "min": 240, "xp": 69, "in": {"Brown Sugar": 1, "Blueberry": 3, "Onion": 1, "Lemon": 1}, "q": 0}, {"n": "Marmalade", "k": "good", "p": "Jam Maker", "min": 509, "xp": 54, "in": {"Orange": 3}, "q": 0}, {"n": "Peach Jam", "k": "good", "p": "Jam Maker", "min": 480, "xp": 55, "in": {"Peach": 3}, "q": 0}, {"n": "Green Tea", "k": "good", "p": "Tea Stand", "min": 29, "xp": 29, "in": {"Tea Leaf": 5}, "q": 0}, {"n": "Chamomile Essential Oil", "k": "good", "p": "Essential Oils Lab", "min": 9, "xp": 34, "in": {"Chamomile": 5}, "q": 0}, {"n": "Ginger Essential Oil", "k": "good", "p": "Essential Oils Lab", "min": 20, "xp": 19, "in": {"Ginger": 5}, "q": 0}, {"n": "Lemon Essential Oil", "k": "good", "p": "Essential Oils Lab", "min": 9, "xp": 34, "in": {"Lemon": 3}, "q": 0}, {"n": "Rustic Bouquet", "k": "good", "p": "Flower Shop", "min": 45, "xp": 25, "in": {"Wheat": 5, "Indigo": 3, "Cotton": 3}, "q": 0}, {"n": "Bright Bouquet", "k": "good", "p": "Flower Shop", "min": 20, "xp": 40, "in": {"Sunflower": 5, "Indigo": 3, "Cotton": 1, "Iron Ore": 5}, "q": 0}, {"n": "Gracious Bouquet", "k": "good", "p": "Flower Shop", "min": 40, "xp": 60, "in": {"Cotton Fabric": 1, "Lily": 5, "Gold Ore": 1, "Diamond": 1}, "q": 0}, {"n": "Raspberry Candle", "k": "good", "p": "Candle Maker", "min": 105, "xp": 43, "in": {"Beeswax": 1, "Raspberry": 2}, "q": 0}, {"n": "Strawberry Candle", "k": "good", "p": "Candle Maker", "min": 120, "xp": 44, "in": {"Beeswax": 1, "Strawberry": 2}, "q": 0}, {"n": "Lemon Candle", "k": "good", "p": "Candle Maker", "min": 134, "xp": 55, "in": {"Beeswax": 1, "Lemon": 2}, "q": 0}, {"n": "Honey", "k": "good", "p": "Honey Extractor", "min": 20, "xp": 19, "in": {"Honeycomb": 2}, "q": 33}, {"n": "Beeswax", "k": "good", "p": "Honey Extractor", "min": 45, "xp": 28, "in": {"Honeycomb": 3}, "q": 0}, {"n": "Bean Dip", "k": "good", "p": "Sauce Maker", "min": 40, "xp": 15, "in": {"Black Bean": 3, "Tomato": 1, "Chili Pepper": 1}, "q": 0}, {"n": "Soy Sauce", "k": "good", "p": "Sauce Maker", "min": 180, "xp": 19, "in": {"Soyabean": 9, "Wheat": 1}, "q": 111}, {"n": "Olive Oil", "k": "good", "p": "Sauce Maker", "min": 45, "xp": 33, "in": {"Olive": 3}, "q": 103}, {"n": "Lemon Curd", "k": "good", "p": "Sauce Maker", "min": 25, "xp": 45, "in": {"Butter": 1, "Egg": 2, "Lemon": 2, "White Sugar": 1}, "q": 0}, {"n": "Tomato Sauce", "k": "good", "p": "Sauce Maker", "min": 29, "xp": 27, "in": {"Brown Sugar": 1, "Lemon": 1, "Tomato": 2}, "q": 132}, {"n": "Salsa", "k": "good", "p": "Sauce Maker", "min": 20, "xp": 30, "in": {"Chili Pepper": 2, "Onion": 2, "Tomato": 2}, "q": 117}, {"n": "Mayonnaise", "k": "good", "p": "Sauce Maker", "min": 14, "xp": 44, "in": {"Egg": 4, "Olive Oil": 1}, "q": 138}, {"n": "Olive Dip", "k": "good", "p": "Sauce Maker", "min": 45, "xp": 56, "in": {"Olive": 3, "Bread": 2, "Lemon": 1, "Fish Fillet": 1}, "q": 0}, {"n": "Bean Salad", "k": "good", "p": "Salad Bar", "min": 60, "xp": 20, "in": {"Black Bean": 3, "Tomato": 1, "Lettuce": 2, "Corn": 1}, "q": 0}, {"n": "Feta Salad", "k": "good", "p": "Salad Bar", "min": 89, "xp": 89, "in": {"Goat Cheese": 2, "Lettuce": 3, "Olive": 2, "Roasted Tomatoes": 1}, "q": 0}, {"n": "Blt Salad", "k": "good", "p": "Salad Bar", "min": 105, "xp": 86, "in": {"Bacon": 2, "Lettuce": 3, "Mayonnaise": 1, "Roasted Tomatoes": 1}, "q": 0}, {"n": "Pasta Salad", "k": "good", "p": "Salad Bar", "min": 149, "xp": 90, "in": {"Fresh Pasta": 4, "Lemon": 2, "Olive Oil": 1, "Tomato": 2}, "q": 0}, {"n": "Veggie Platter", "k": "good", "p": "Salad Bar", "min": 120, "xp": 32, "in": {"Bell Pepper": 2, "Carrot": 2, "Tomato": 2, "Cream": 1}, "q": 0}, {"n": "Coleslaw", "k": "good", "p": "Salad Bar", "min": 74, "xp": 56, "in": {"Cabbage": 3, "Carrot": 2, "Mayonnaise": 1}, "q": 0}, {"n": "Summer Rolls", "k": "good", "p": "Salad Bar", "min": 60, "xp": 38, "in": {"Rice Noodles": 2, "Carrot": 2, "Lettuce": 1, "Chili Pepper": 1}, "q": 0}, {"n": "Seafood Salad", "k": "good", "p": "Salad Bar", "min": 120, "xp": 91, "in": {"Fish Fillet": 1, "Lettuce": 3, "Lobster Tail": 1, "Mayonnaise": 1}, "q": 0}, {"n": "Veggie Bagel", "k": "good", "p": "Sandwich Bar", "min": 40, "xp": 63, "in": {"Bread": 2, "Lettuce": 3, "Olive Oil": 1, "Tomato": 2}, "q": 0}, {"n": "Bacon Toast", "k": "good", "p": "Sandwich Bar", "min": 100, "xp": 77, "in": {"Bacon": 2, "Bread": 2, "Lettuce": 3, "Mayonnaise": 1}, "q": 0}, {"n": "Egg Sandwich", "k": "good", "p": "Sandwich Bar", "min": 80, "xp": 69, "in": {"Bread": 2, "Egg": 2, "Lettuce": 3, "Mayonnaise": 1}, "q": 0}, {"n": "Honey Toast", "k": "good", "p": "Sandwich Bar", "min": 60, "xp": 31, "in": {"Bread": 1, "Egg": 1, "Honey": 1, "Milk": 1}, "q": 0}, {"n": "Peanut Butter And Jelly Sandwich", "k": "good", "p": "Sandwich Bar", "min": 25, "xp": 80, "in": {"Bread": 2, "Raspberry Jam": 1, "Peanuts": 1}, "q": 0}, {"n": "Cucumber Sandwich", "k": "good", "p": "Sandwich Bar", "min": 34, "xp": 55, "in": {"Cucumber": 2, "Mayonnaise": 1, "Bread": 2}, "q": 0}, {"n": "Fresh Pasta", "k": "good", "p": "Pasta Maker", "min": 14, "xp": 5, "in": {"Egg": 1, "Wheat": 2}, "q": 0}, {"n": "Rice Noodles", "k": "good", "p": "Pasta Maker", "min": 20, "xp": 12, "in": {"Rice": 5}, "q": 159}, {"n": "Gnocchi", "k": "good", "p": "Pasta Kitchen", "min": 80, "xp": 57, "in": {"Potato": 4, "Tomato": 3, "Wheat": 2, "Butter": 2}, "q": 0}, {"n": "Veggie Lasagna", "k": "good", "p": "Pasta Kitchen", "min": 100, "xp": 63, "in": {"Tomato Sauce": 1, "Fresh Pasta": 3, "Carrot": 1, "Cheese": 1}, "q": 0}, {"n": "Berry Smoothie", "k": "good", "p": "Smoothie Mixer", "min": 74, "xp": 65, "in": {"Blackberry": 3, "Strawberry": 3, "Raspberry": 3}, "q": 0}, {"n": "Green Smoothie", "k": "good", "p": "Smoothie Mixer", "min": 45, "xp": 38, "in": {"Apple": 1, "Lemon": 1, "Lettuce": 5}, "q": 0}, {"n": "Cucumber Smoothie", "k": "good", "p": "Smoothie Mixer", "min": 40, "xp": 32, "in": {"Cucumber": 3, "Honey": 1, "Pineapple": 3}, "q": 0}, {"n": "Yogurt Smoothie", "k": "good", "p": "Smoothie Mixer", "min": 60, "xp": 42, "in": {"Cherry": 1, "Cream": 1, "Raspberry": 2, "White Sugar": 1}, "q": 0}, {"n": "Asparagus Soup", "k": "good", "p": "Soup Kitchen", "min": 60, "xp": 30, "in": {"Asparagus": 3, "Cream": 2}, "q": 0}, {"n": "Pumpkin Soup", "k": "good", "p": "Soup Kitchen", "min": 120, "xp": 47, "in": {"Butter": 1, "Carrot": 2, "Honey": 1, "Pumpkin": 3}, "q": 0}, {"n": "Cabbage Soup", "k": "good", "p": "Soup Kitchen", "min": 89, "xp": 32, "in": {"Cabbage": 3, "Bacon": 2, "Potato": 2, "Carrot": 2}, "q": 0}, {"n": "Onion Soup", "k": "good", "p": "Soup Kitchen", "min": 149, "xp": 39, "in": {"Bread": 2, "Cheese": 1, "Onion": 3}, "q": 0}, {"n": "Potato Soup", "k": "good", "p": "Soup Kitchen", "min": 149, "xp": 31, "in": {"Milk": 1, "Onion": 2, "Potato": 3}, "q": 0}, {"n": "Tomato Soup", "k": "good", "p": "Soup Kitchen", "min": 89, "xp": 57, "in": {"Chili Pepper": 1, "Goat Cheese": 1, "Tomato Juice": 1, "Tomato": 2}, "q": 0}, {"n": "Noodle Soup", "k": "good", "p": "Soup Kitchen", "min": 120, "xp": 52, "in": {"Carrot": 2, "Chili Pepper": 1, "Egg": 2, "Rice Noodles": 3}, "q": 0}, {"n": "Fish Soup", "k": "good", "p": "Soup Kitchen", "min": 180, "xp": 35, "in": {"Carrot": 1, "Fish Fillet": 2, "Milk": 1, "Potato": 3}, "q": 0}, {"n": "Toffee", "k": "good", "p": "Candy Machine", "min": 89, "xp": 21, "in": {"Butter": 1, "Wheat": 1, "White Sugar": 1}, "q": 0}, {"n": "Cotton Candy", "k": "good", "p": "Candy Machine", "min": 29, "xp": 27, "in": {"White Sugar": 3, "Strawberry": 1}, "q": 0}, {"n": "Honey Peanuts", "k": "good", "p": "Candy Machine", "min": 40, "xp": 64, "in": {"Honey": 1, "Peanuts": 1}, "q": 0}, {"n": "Sesame Brittle", "k": "good", "p": "Candy Machine", "min": 60, "xp": 32, "in": {"Sesame": 3, "Ginger": 1, "Honey": 1}, "q": 0}, {"n": "Lollipop", "k": "good", "p": "Candy Machine", "min": 720, "xp": 41, "in": {"Cherry": 1, "Strawberry": 2, "Syrup": 1}, "q": 0}, {"n": "Chocolate", "k": "good", "p": "Candy Machine", "min": 1200, "xp": 55, "in": {"Cacao": 3, "Cream": 1, "White Sugar": 1}, "q": 0}, {"n": "Vanilla Ice Cream", "k": "good", "p": "Ice Cream Maker", "min": 120, "xp": 20, "in": {"Cream": 1, "Milk": 1, "White Sugar": 1}, "q": 0}, {"n": "Strawberry Ice Cream", "k": "good", "p": "Ice Cream Maker", "min": 240, "xp": 40, "in": {"Cream": 1, "Milk": 1, "Strawberry": 3, "White Sugar": 1}, "q": 0}, {"n": "Chocolate Ice Cream", "k": "good", "p": "Ice Cream Maker", "min": 149, "xp": 41, "in": {"Cream": 1, "Cacao": 2, "Milk": 1, "White Sugar": 1}, "q": 0}, {"n": "Sesame Ice Cream", "k": "good", "p": "Ice Cream Maker", "min": 120, "xp": 21, "in": {"Cream": 1, "Sesame": 3, "Brown Sugar": 1}, "q": 0}, {"n": "Orange Sorbet", "k": "good", "p": "Ice Cream Maker", "min": 209, "xp": 48, "in": {"Honey": 1, "Orange": 2}, "q": 0}, {"n": "Cherry Popsicle", "k": "good", "p": "Ice Cream Maker", "min": 180, "xp": 42, "in": {"Cherry Juice": 1, "Syrup": 1}, "q": 0}, {"n": "Peanut Butter Milkshake", "k": "good", "p": "Ice Cream Maker", "min": 100, "xp": 86, "in": {"Peanuts": 1, "Milk": 1, "Cream": 1, "Cacao": 3}, "q": 0}, {"n": "Espresso", "k": "good", "p": "Coffee Kiosk", "min": 5, "xp": 29, "in": {"Coffee Bean": 3, "White Sugar": 1}, "q": 0}, {"n": "Caffe Latte", "k": "good", "p": "Coffee Kiosk", "min": 9, "xp": 26, "in": {"Coffee Bean": 2, "Milk": 1, "White Sugar": 1}, "q": 0}, {"n": "Caffe Mocha", "k": "good", "p": "Coffee Kiosk", "min": 14, "xp": 35, "in": {"Coffee Bean": 1, "Cream": 1, "Cacao": 2}, "q": 0}, {"n": "Hot Chocolate", "k": "good", "p": "Coffee Kiosk", "min": 25, "xp": 38, "in": {"Cacao": 2, "Cream": 1, "Milk": 1, "White Sugar": 1}, "q": 0}, {"n": "Raspberry Mocha", "k": "good", "p": "Coffee Kiosk", "min": 29, "xp": 31, "in": {"Cacao": 1, "Coffee Bean": 1, "Cream": 1, "Raspberry": 1}, "q": 0}, {"n": "Caramel Latte", "k": "good", "p": "Coffee Kiosk", "min": 14, "xp": 41, "in": {"Coffee Bean": 2, "Toffee": 1, "Milk": 1}, "q": 0}, {"n": "Hot Dog", "k": "good", "p": "Hot Dog Stand", "min": 29, "xp": 44, "in": {"Bacon": 2, "Bread": 1, "Tomato Sauce": 1}, "q": 0}, {"n": "Tofu Dog", "k": "good", "p": "Hot Dog Stand", "min": 45, "xp": 44, "in": {"Lettuce": 3, "Soyabean": 6, "Tomato": 4}, "q": 0}, {"n": "Corn Dog", "k": "good", "p": "Hot Dog Stand", "min": 60, "xp": 63, "in": {"Bacon": 4, "Corn": 4, "Olive Oil": 1}, "q": 0}, {"n": "Onion Dog", "k": "good", "p": "Hot Dog Stand", "min": 74, "xp": 36, "in": {"Bacon": 2, "Bread": 1, "Chili Pepper": 1, "Onion": 3}, "q": 0}, {"n": "Taco", "k": "good", "p": "Taco Kitchen", "min": 45, "xp": 47, "in": {"Corn Bread": 1, "Bacon": 1, "Salsa": 1}, "q": 0}, {"n": "Spicy Bean Taco", "k": "good", "p": "Taco Kitchen", "min": 120, "xp": 54, "in": {"Taco": 1, "Black Bean": 2}, "q": 0}, {"n": "Fried Rice", "k": "good", "p": "Wok Kitchen", "min": 60, "xp": 24, "in": {"Rice": 5, "Egg": 5}, "q": 0}, {"n": "Lamb Stir Fry", "k": "good", "p": "Wok Kitchen", "min": 120, "xp": 32, "in": {"Rice": 3, "Grilled Lamb Skewer": 1, "Chili Pepper": 2, "Sesame": 1}, "q": 0}, {"n": "Lamb Doner Wrap", "k": "good", "p": "Doner Kebab Stand", "min": 20, "xp": 20, "in": {"Grilled Lamb Skewer": 1, "Tomato": 1, "Bread": 1}, "q": 0}, {"n": "Spicy Bean Doner", "k": "good", "p": "Doner Kebab Stand", "min": 29, "xp": 56, "in": {"Black Bean": 3, "Chili Pepper": 3, "Cheese": 2, "Corn Bread": 1}, "q": 0}, {"n": "Tower Doner Supreme", "k": "good", "p": "Doner Kebab Stand", "min": 40, "xp": 42, "in": {"Lamb Chop": 3, "Corn Bread": 1, "Goat Cheese": 1, "Lettuce": 3}, "q": 0}, {"n": "Sushi Roll", "k": "good", "p": "Sushi Bar", "min": 60, "xp": 58, "in": {"Fish Fillet": 1, "Rice": 15, "Soy Sauce": 1}, "q": 0}, {"n": "Egg Sushi", "k": "good", "p": "Sushi Bar", "min": 120, "xp": 66, "in": {"Brown Sugar": 1, "Egg": 4, "Rice": 15, "Soy Sauce": 1}, "q": 0}, {"n": "Big Sushi Roll", "k": "good", "p": "Sushi Bar", "min": 89, "xp": 77, "in": {"Lettuce": 5, "Rice": 20, "Fish Fillet": 1, "Egg": 3}, "q": 0}, {"n": "Bracelet", "k": "good", "p": "Jeweler", "min": 99, "xp": 61, "in": {"Gold Bar": 1, "Silver Bar": 2}, "q": 0}, {"n": "Necklace", "k": "good", "p": "Jeweler", "min": 180, "xp": 87, "in": {"Gold Bar": 1, "Platinum Bar": 1, "Silver Bar": 2}, "q": 0}, {"n": "Iron Bracelet", "k": "good", "p": "Jeweler", "min": 89, "xp": 79, "in": {"Iron Bar": 2, "Refined Coal": 2, "Silver Bar": 1}, "q": 0}];
+const PLACES_MACHINE = ["Bakery", "Bbq Grill", "Cake Oven", "Candle Maker", "Candy Machine", "Coffee Kiosk", "Dairy", "Doner Kebab Stand", "Essential Oils Lab", "Feed Mill", "Flower Shop", "Honey Extractor", "Hot Dog Stand", "Ice Cream Maker", "Jam Maker", "Jeweler", "Juice Press", "Loom", "Pasta Kitchen", "Pasta Maker", "Pie Oven", "Popcorn Pot", "Salad Bar", "Sandwich Bar", "Sauce Maker", "Sewing Machine", "Smelter", "Smoothie Mixer", "Soup Kitchen", "Sugar Mill", "Sushi Bar", "Taco Kitchen", "Tea Stand", "Wok Kitchen"];
+
+/* ========== LƯU TRỮ ========== */
+const KEY="hayday-planner-v2", CFGKEY="hayday-sync-cfg";
+const store={
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } }
+};
+const SEED={}; BASE.forEach(i=>{ if(i.q) SEED[i.n]=i.q; });
+let S={
+  items: JSON.parse(JSON.stringify(BASE)),
+  stock: JSON.parse(JSON.stringify(SEED)),
+  count:{}, slots:{}, wait:{},
+  src:{},                       // nguồn thu ngoài máy: {tên: {ready, wait}}
+  extraMachines:[], hiddenMachines:[],
+  plotsFree:0, plotsTotal:0,
+  truck:[], boat:[], boatEta:0, boatDue:0,
+  capSilo:2150, capBarn:5750, xpNow:464438, xpNeed:487000,
+  mode:"orders", loginTime:""
+};
+let CFG={token:"",gist:"",last:""};
+function load(){
+  const raw=store.get(KEY); if(raw){ try{ S=Object.assign(S,JSON.parse(raw)); }catch(e){} }
+  const c=store.get(CFGKEY); if(c){ try{ CFG=Object.assign(CFG,JSON.parse(c)); }catch(e){} }
+}
+let tmr=null;
+function save(){
+  clearTimeout(tmr);
+  tmr=setTimeout(()=>{ flag(store.set(KEY,JSON.stringify(S))?"Đã lưu":"Không lưu được"); },300);
+}
+function saveCfg(){ store.set(CFGKEY,JSON.stringify(CFG)); }
+function flag(t){ const e=$("#saveFlag"); e.textContent=t; setTimeout(()=>{ if(e.textContent===t) e.textContent=""; },1500); }
+
+/* ========== TIỆN ÍCH ========== */
+const $=s=>document.querySelector(s);
+const items=()=>S.items;
+const byName=n=>S.items.find(i=>i.n===n);
+const qty=n=>Number(S.stock[n]||0);
+const allMachines=()=>PLACES_MACHINE.filter(m=>!(S.hiddenMachines||[]).includes(m)).concat(S.extraMachines||[]);
+const SILO_SRC=["Field","Tree","Bush","Squirrel House"];
+const isSilo=i=>i&&SILO_SRC.includes(i.p)&&i.k==="crop";
+const xph=i=>i.min>0?i.xp*60/i.min:0;
+const cropCost=i=>Object.entries(i.in).reduce((a,[k,v])=>a+(isSilo(byName(k))?v:0),0);
+const siloRate=i=>i.min>0?cropCost(i)*60/i.min:0;
+function fmtIn(o){ return Object.entries(o).map(([k,v])=>k+"×"+v).join(", "); }
+function parseIn(s){
+  const o={};
+  (s||"").split(",").map(x=>x.trim()).filter(Boolean).forEach(part=>{
+    const m=part.split(/[×x*]/i);
+    const nm=(m[0]||"").trim(); const q=parseInt((m[1]||"1").trim(),10)||1;
+    if(nm) o[nm]=(o[nm]||0)+q;
+  });
+  return o;
+}
+function parseWaits(v){
+  return (v==null?"":String(v)).split(/[,;\s]+/).map(x=>parseInt(x,10)).filter(n=>!isNaN(n)&&n>0).sort((a,b)=>a-b);
+}
+function parseMin(t){
+  t=(t||"").toString().trim().toLowerCase();
+  if(/^\d+$/.test(t)) return parseInt(t,10);
+  const cl=t.match(/^(\d+)\s*:\s*(\d+)$/); if(cl) return (+cl[1])*60+(+cl[2]);
+  t=t.replace(/giờ|tiếng/g,"h").replace(/phút/g,"m")
+     .replace(/hrs|hours|hour|hr/g,"h").replace(/mins|minutes|minute|min/g,"m")
+     .replace(/[:\s]+/g," ").trim();
+  const g=t.match(/(\d+)\s*h\s*(\d+)/); if(g) return (+g[1])*60+(+g[2]);
+  let h=0,m=0,hit=false;
+  const hm=t.match(/(\d+)\s*h/); if(hm){h=+hm[1];hit=true;}
+  const mm=t.match(/(\d+)\s*m/); if(mm){m=+mm[1];hit=true;}
+  if(!hit){ const n=t.match(/\d+/); return n?+n[0]:0; }
+  return h*60+m;
+}
+const totalSilo=()=>items().filter(isSilo).reduce((a,i)=>a+qty(i.n),0);
+const totalBarn=()=>items().filter(i=>!isSilo(i)).reduce((a,i)=>a+qty(i.n),0);
+function clock(baseMin, addMin){
+  const t=new Date(); const [hh,mm]=(S.loginTime||"").split(":");
+  if(hh!=null&&mm!=null){ t.setHours(+hh,+mm,0,0); }
+  t.setMinutes(t.getMinutes()+addMin);
+  return t.toTimeString().slice(0,5);
+}
+function hm(min){
+  min=Math.round(min);
+  if(min<60) return min+"p";
+  const h=Math.floor(min/60), m=min%60;
+  return m?h+"h"+String(m).padStart(2,"0"):h+"h";
+}
+
+/* ========== TABS ========== */
+document.querySelectorAll("nav.tabs button").forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected","false"));
+    b.setAttribute("aria-selected","true");
+    document.querySelectorAll("section.page").forEach(p=>p.classList.remove("on"));
+    $("#p-"+b.dataset.tab).classList.add("on");
+    window.scrollTo({top:0});
+  };
+});
+
+/* ========== KHO ========== */
+function renderStock(){
+  const host=$("#stockList"); host.innerHTML="";
+  const f=($("#stockFilter").value||"").toLowerCase();
+  [["Nông sản — tháp",i=>isSilo(i)],
+   ["Từ vật nuôi, mỏ, ao",i=>i.k==="animal"],
+   ["Hàng chế biến — kho",i=>i.k==="good"]].forEach(([title,test])=>{
+    const list=items().filter(test).filter(i=>!f||i.n.toLowerCase().includes(f));
+    if(!list.length) return;
+    const h=document.createElement("div"); h.className="grp-title"; h.textContent=title; host.appendChild(h);
+    list.forEach(i=>{
+      const r=document.createElement("div"); r.className="row";
+      r.innerHTML='<div class="nm"><b></b><span></span></div><div class="stepper">'
+        +'<button type="button">−</button><input type="number" min="0" inputmode="numeric"><button type="button">+</button></div>';
+      r.querySelector("b").textContent=i.n;
+      r.querySelector("span").textContent=i.p+(i.min?" · "+hm(i.min)+" · "+i.xp+" XP":"");
+      const inp=r.querySelector("input"); inp.value=qty(i.n);
+      const set=v=>{ S.stock[i.n]=Math.max(0,v); inp.value=S.stock[i.n]; counts(); save(); };
+      inp.oninput=()=>{ S.stock[i.n]=Math.max(0,parseInt(inp.value,10)||0); counts(); save(); };
+      r.querySelectorAll("button")[0].onclick=()=>set(qty(i.n)-1);
+      r.querySelectorAll("button")[1].onclick=()=>set(qty(i.n)+1);
+      host.appendChild(r);
+    });
+  });
+  counts();
+}
+function counts(){
+  const s=totalSilo(), b=totalBarn();
+  $("#khoSub").textContent="Tháp "+s+"/"+S.capSilo+" ("+Math.round(s/S.capSilo*100)+"%) · Kho "+b+"/"+S.capBarn+" ("+Math.round(b/S.capBarn*100)+"%)";
+}
+
+/* ========== NÔNG TRẠI ========== */
+function srcGroups(){
+  const g={};
+  items().filter(i=>i.k!=="good"&&i.p!=="Field").forEach(i=>{ (g[i.p]=g[i.p]||[]).push(i.n); });
+  return g;
+}
+function renderSrc(){
+  const host=$("#srcList"); host.innerHTML="";
+  const g=srcGroups();
+  Object.keys(g).sort().forEach(p=>{
+    const d=document.createElement("div"); d.className="mach";
+    d.innerHTML='<div class="hd"><b style="font-size:14.5px"></b><em></em></div><div class="ctl">'
+      +'<div><label>Sẵn sàng thu</label><input type="number" min="0" class="rd"></div>'
+      +'<div><label>Còn (phút)</label><input type="text" class="wt" placeholder="vd: 40, 90"></div></div>';
+    d.querySelector("b").textContent=p;
+    d.querySelector("em").textContent=g[p].slice(0,4).join(", ")+(g[p].length>4?"…":"");
+    const rd=d.querySelector(".rd"), wt=d.querySelector(".wt");
+    S.src[p]=S.src[p]||{ready:0,wait:""};
+    rd.value=S.src[p].ready||0; wt.value=S.src[p].wait||"";
+    rd.oninput=()=>{ S.src[p].ready=Math.max(0,parseInt(rd.value,10)||0); save(); };
+    wt.oninput=()=>{ S.src[p].wait=wt.value; save(); };
+    host.appendChild(d);
+  });
+}
+
+/* ========== MÁY ========== */
+function renderMachines(){
+  const host=$("#machineList"); host.innerHTML="";
+  allMachines().forEach(p=>{
+    const prods=items().filter(i=>i.p===p);
+    const ready=prods.filter(i=>i.min>0).length;
+    const d=document.createElement("div"); d.className="mach";
+    if(!ready) d.style.opacity=".7";
+    const hd=document.createElement("div"); hd.className="hd";
+    const nm=document.createElement("input"); nm.className="mname"; nm.value=p;
+    nm.onchange=()=>{
+      const nw=nm.value.trim();
+      if(!nw||nw===p){ nm.value=p; return; }
+      if(allMachines().includes(nw)){ alert("Đã có máy tên này."); nm.value=p; return; }
+      items().forEach(i=>{ if(i.p===p) i.p=nw; });
+      ["slots","wait","count"].forEach(k=>{ if(S[k][p]!==undefined){ S[k][nw]=S[k][p]; delete S[k][p]; } });
+      if((S.extraMachines||[]).includes(p)) S.extraMachines=S.extraMachines.map(m=>m===p?nw:m);
+      else { S.hiddenMachines=(S.hiddenMachines||[]).concat(p); S.extraMachines=(S.extraMachines||[]).concat(nw); }
+      save(); renderMachines(); renderData();
+    };
+    const em=document.createElement("em");
+    em.textContent=ready?ready+"/"+prods.length+" món có công thức":"chưa có công thức";
+    const del=document.createElement("button"); del.textContent="Xóa"; del.className="btn-lite";
+    del.style.cssText="margin-left:auto;padding:3px 9px;font-size:11px";
+    del.onclick=()=>{
+      if(!confirm('Bỏ máy "'+p+'" khỏi danh sách?')) return;
+      if((S.extraMachines||[]).includes(p)) S.extraMachines=S.extraMachines.filter(m=>m!==p);
+      else S.hiddenMachines=(S.hiddenMachines||[]).concat(p);
+      delete S.slots[p]; delete S.wait[p]; delete S.count[p];
+      save(); renderMachines();
+    };
+    hd.append(nm,em,del); d.appendChild(hd);
+
+    const cnt=Math.max(1,parseInt(S.count[p],10)||1);
+    const ctl=document.createElement("div"); ctl.className="ctl";
+    ctl.innerHTML='<div><label>Số máy</label><input type="number" min="1" class="ct" style="width:52px"></div>'
+      +'<div><label>Chỗ trống</label><input type="number" min="0" class="sl"></div>'
+      +'<div><label class="wl"></label><input type="text" class="wt" style="width:92px"></div>';
+    const ct=ctl.querySelector(".ct"), sl=ctl.querySelector(".sl"), wt=ctl.querySelector(".wt"), wl=ctl.querySelector(".wl");
+    const setWl=()=>{ const c=Math.max(1,parseInt(ct.value,10)||1);
+      wl.textContent=c>1?"Còn (phút, cách nhau dấu phẩy)":"Còn (phút)";
+      wt.placeholder=c>1?"vd: 20, 95":"vd: 20"; };
+    ct.value=cnt; sl.value=S.slots[p]??0; wt.value=S.wait[p]??""; setWl();
+    ct.oninput=()=>{ S.count[p]=Math.max(1,parseInt(ct.value,10)||1); setWl(); save(); };
+    sl.oninput=()=>{ S.slots[p]=Math.max(0,parseInt(sl.value,10)||0); save(); };
+    wt.oninput=()=>{ S.wait[p]=wt.value; save(); };
+    d.appendChild(ctl);
+
+    const row=document.createElement("div"); row.className="mrow";
+    const tg=document.createElement("button"); tg.className="btn-lite"; tg.textContent="Xem món ("+prods.length+")";
+    const ad=document.createElement("button"); ad.className="btn-lite"; ad.textContent="+ Thêm món";
+    const bk=document.createElement("button"); bk.className="btn-lite"; bk.textContent="Dán nhiều món";
+    row.append(tg,ad,bk); d.appendChild(row);
+
+    const box=document.createElement("div"); box.className="prods"; box.style.display="none";
+    prods.forEach(it=>{
+      const r=document.createElement("div"); r.className="prod";
+      const c=document.createElement("div"); c.className="pn";
+      const b=document.createElement("b"); b.textContent=it.n;
+      const sp=document.createElement("span");
+      sp.textContent=it.min>0?hm(it.min)+" · "+it.xp+" XP · "+(fmtIn(it.in)||"—"):"chưa có phút/XP";
+      if(it.min<=0) sp.className="no";
+      c.append(b,sp);
+      const x=document.createElement("button"); x.className="xbtn"; x.textContent="×";
+      x.onclick=()=>{ if(!confirm('Xóa món "'+it.n+'"?')) return;
+        S.items=S.items.filter(z=>z!==it); delete S.stock[it.n]; save(); renderMachines(); renderStock(); renderData(); };
+      r.append(c,x); box.appendChild(r);
+    });
+    if(!prods.length){ const e=document.createElement("p"); e.className="empty"; e.textContent="Chưa có món nào."; box.appendChild(e); }
+    d.appendChild(box);
+    tg.onclick=()=>{ const on=box.style.display!=="none"; box.style.display=on?"none":"block";
+      tg.textContent=(on?"Xem món (":"Ẩn món (")+prods.length+")"; };
+
+    const f=document.createElement("div"); f.className="addform";
+    f.innerHTML='<input class="fn" placeholder="Tên món (tiếng Anh)"><div class="two">'
+      +'<input class="fm" type="number" placeholder="Số phút"><input class="fx" type="number" placeholder="XP"></div>'
+      +'<input class="fi" placeholder="Nguyên liệu: Tea Leaf×5, Egg×1">';
+    const ok=document.createElement("button"); ok.className="btn-lite"; ok.textContent="Lưu món";
+    f.appendChild(ok); d.appendChild(f);
+    ad.onclick=()=>{ f.classList.toggle("on"); };
+    ok.onclick=()=>{
+      const n=f.querySelector(".fn").value.trim(); if(!n) return;
+      if(byName(n)){ alert("Đã có món tên này."); return; }
+      S.items.push({n:n,k:"good",p:p,min:Math.max(0,parseInt(f.querySelector(".fm").value,10)||0),
+        xp:Math.max(0,parseInt(f.querySelector(".fx").value,10)||0),in:parseIn(f.querySelector(".fi").value),q:0});
+      save(); renderMachines(); renderStock(); renderData();
+    };
+
+    const bf=document.createElement("div"); bf.className="addform";
+    bf.innerHTML='<p class="sub" style="margin:0 0 6px"><code>Name | time | XP | ingredients</code></p>'
+      +'<textarea class="bt" rows="5" style="width:100%;border:1px solid var(--line);border-radius:7px;padding:8px;font-size:12.5px;font-family:ui-monospace,monospace;background:var(--white)"></textarea>';
+    const bok=document.createElement("button"); bok.className="btn-lite"; bok.textContent="Nhập vào máy này";
+    bf.appendChild(bok); d.appendChild(bf);
+    bk.onclick=()=>{ bf.classList.toggle("on"); };
+    bok.onclick=()=>{
+      let add=0,upd=0,bad=0;
+      bf.querySelector(".bt").value.split(/\n+/).forEach(line=>{
+        line=line.trim(); if(!line) return;
+        const c=line.split(/\s*[|\t]\s*/); if(c.length<3){ bad++; return; }
+        const n=c[0].trim(), mn=parseMin(c[1]), xp=Math.max(0,parseInt(c[2],10)||0), ing=parseIn(c[3]||"");
+        if(!n){ bad++; return; }
+        const ex=byName(n);
+        if(ex){ ex.p=p; ex.min=mn; ex.xp=xp; ex.in=ing; upd++; }
+        else { S.items.push({n:n,k:"good",p:p,min:mn,xp:xp,in:ing,q:0}); add++; }
+      });
+      alert("Thêm "+add+", cập nhật "+upd+(bad?", bỏ qua "+bad+" dòng":"")+".");
+      save(); renderMachines(); renderStock(); renderData();
+    };
+    host.appendChild(d);
+  });
+  if((S.hiddenMachines||[]).length){
+    const r=document.createElement("button"); r.className="btn-lite";
+    r.textContent="Khôi phục "+S.hiddenMachines.length+" máy đã xóa";
+    r.onclick=()=>{ S.hiddenMachines=[]; save(); renderMachines(); };
+    host.appendChild(r);
+  }
+}
+
+/* ========== ĐƠN HÀNG ========== */
+function parseOrders(txt){
+  return txt.split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=>{
+    const p=l.split("|");
+    return {need:parseIn(p[0]), xp:Math.max(0,parseInt(p[1],10)||0), raw:p[0].trim()};
+  }).filter(o=>Object.keys(o.need).length);
+}
+function ordersToText(list){
+  return list.map(o=>fmtIn(o.need)+(o.xp?" | "+o.xp:"")).join("\n");
+}
+function orderText(o){ return o?fmtIn(o.need)+(o.xp?" | "+o.xp:""):""; }
+function parseOne(line){
+  line=(line||"").trim(); if(!line) return null;
+  const p=line.split("|");
+  const need=parseIn(p[0]); if(!Object.keys(need).length) return null;
+  return {need:need, xp:Math.max(0,parseInt(p[1],10)||0)};
+}
+function canFill(o){ return o&&Object.entries(o.need).every(([k,v])=>qty(k)>=v); }
+function deliver(list, idx){
+  const o=list[idx]; if(!o) return;
+  if(!canFill(o)){ alert("Chưa đủ hàng cho đơn này."); return; }
+  Object.entries(o.need).forEach(([k,v])=>{ S.stock[k]=Math.max(0,qty(k)-v); });
+  if(o.xp) S.xpNow=(S.xpNow||0)+o.xp;
+  list[idx]=null;
+  save(); renderOrders(); renderStock(); showXp();
+  flag("Đã giao"+(o.xp?" · +"+o.xp+" XP":""));
+}
+function renderOrders(){
+  // --- 9 ô xe tải ---
+  S.truck=S.truck||[];
+  while(S.truck.length<9) S.truck.push(null);
+  if(S.truck.length>9) S.truck=S.truck.slice(0,9);
+  const host=$("#truckSlots"); host.innerHTML="";
+  let filled=0, ready=0;
+  S.truck.forEach((o,idx)=>{
+    if(o) filled++;
+    const ok=canFill(o); if(o&&ok) ready++;
+    const r=document.createElement("div"); r.className="slot";
+    const n=document.createElement("div"); n.className="no"; n.textContent=(idx+1)+".";
+    const inp=document.createElement("input"); inp.className="oi"+(o?"":" empty");
+    inp.value=orderText(o); inp.placeholder="trống — vd: Bread×2, Cream×3 | 250";
+    inp.onchange=()=>{ S.truck[idx]=parseOne(inp.value); save(); renderOrders(); };
+    const st=document.createElement("div"); st.className="st";
+    st.innerHTML=o?'<span class="pill '+(ok?"ok":"no")+'">'+(ok?"đủ":"thiếu")+'</span>':'';
+    const go=document.createElement("button"); go.className="btn-lite"; go.textContent="Giao";
+    go.style.cssText="padding:4px 9px;font-size:11.5px";
+    go.disabled=!o||!ok; go.style.opacity=(!o||!ok)?".4":"1";
+    go.onclick=()=>deliver(S.truck,idx);
+    const x=document.createElement("button"); x.className="xbtn"; x.textContent="×";
+    x.onclick=()=>{ S.truck[idx]=null; save(); renderOrders(); };
+    r.append(n,inp,st,go,x); host.appendChild(r);
+  });
+  $("#truckCount").textContent="· "+filled+"/9 ô có đơn, "+ready+" đơn đủ hàng";
+  $("#truckBox").value=S.truck.filter(Boolean).map(orderText).join("\n");
+
+  // --- thuyền ---
+  $("#boatBox").value=(S.boat||[]).filter(Boolean).map(orderText).join("\n");
+  $("#boatEta").value=S.boatEta||0; $("#boatDue").value=S.boatDue||0;
+  const bh=$("#boatList"); bh.innerHTML="";
+  const bl=(S.boat||[]).filter(Boolean);
+  if(!bl.length) bh.innerHTML='<p class="empty">Chưa có ô hàng nào.</p>';
+  S.boat=S.boat||[];
+  S.boat.forEach((o,idx)=>{
+    if(!o) return;
+    const ok=canFill(o);
+    const r=document.createElement("div"); r.className="slot";
+    const n=document.createElement("div"); n.className="no"; n.textContent=(idx+1)+".";
+    const c=document.createElement("div"); c.style.flex="1";
+    c.innerHTML=fmtIn(o.need)+(o.xp?' <span class="why">· '+o.xp+' XP</span>':'');
+    const st=document.createElement("div"); st.className="st";
+    st.innerHTML='<span class="pill '+(ok?"ok":"no")+'">'+(ok?"đủ":"thiếu")+'</span>';
+    const go=document.createElement("button"); go.className="btn-lite"; go.textContent="Giao";
+    go.style.cssText="padding:4px 9px;font-size:11.5px";
+    go.disabled=!ok||S.boatEta>0; go.style.opacity=(!ok||S.boatEta>0)?".4":"1";
+    go.title=S.boatEta>0?"Thuyền chưa cập bến":"";
+    go.onclick=()=>deliver(S.boat,idx);
+    const x=document.createElement("button"); x.className="xbtn"; x.textContent="×";
+    x.onclick=()=>{ S.boat.splice(idx,1); save(); renderOrders(); };
+    r.append(n,c,st,go,x); bh.appendChild(r);
+  });
+}
+
+/* ========== ĐỘNG CƠ TÍNH NGUYÊN LIỆU ========== */
+function planOrders(){
+  const avail={}; items().forEach(i=>avail[i.n]=qty(i.n));
+  const deliverable={truck:[],boat:[]};
+  const need={};                       // thiếu tổng hợp
+  const consider=[];
+  (S.truck||[]).filter(Boolean).forEach(o=>consider.push({o:o,tag:"truck"}));
+  (S.boat||[]).filter(Boolean).forEach(o=>consider.push({o:o,tag:"boat"}));
+  // đơn nào đủ hàng thì giao ngay, trừ kho
+  consider.forEach(c=>{
+    const can=Object.entries(c.o.need).every(([k,v])=>(avail[k]||0)>=v);
+    if(can){ Object.entries(c.o.need).forEach(([k,v])=>avail[k]-=v); deliverable[c.tag].push(c.o); }
+  });
+  // đơn còn lại: cộng nhu cầu
+  consider.forEach(c=>{
+    if(deliverable[c.tag].includes(c.o)) return;
+    Object.entries(c.o.need).forEach(([k,v])=>{ need[k]=(need[k]||0)+v; });
+  });
+  // nổ công thức đệ quy
+  const make={}, plant={}, gather={}, buy={};
+  function needMore(name, amount, depth){
+    if(depth>8||amount<=0) return;
+    const have=Math.max(0,avail[name]||0);
+    const use=Math.min(have,amount); avail[name]=have-use;
+    let miss=amount-use; if(miss<=0) return;
+    const it=byName(name);
+    if(!it){ buy[name]=(buy[name]||0)+miss; return; }
+    if(it.k==="good"&&it.min>0){
+      make[name]=(make[name]||0)+miss;
+      Object.entries(it.in).forEach(([k,v])=>needMore(k, v*miss, depth+1));
+      return;
+    }
+    if(it.p==="Field"){ plant[name]=(plant[name]||0)+miss; return; }
+    gather[name]=(gather[name]||0)+miss;
+  }
+  Object.entries(need).forEach(([k,v])=>needMore(k,v,0));
+  return {deliverable, need, make, plant, gather, buy};
+}
+
+/* ========== KẾ HOẠCH ========== */
+function fillMachines(makeWanted){
+  const work={}; items().forEach(i=>work[i.n]=qty(i.n));
+  const queue=[]; const blocked={};
+  const canMake=i=>Object.entries(i.in).every(([k,v])=>(work[k]||0)>=v);
+  const take=i=>Object.entries(i.in).forEach(([k,v])=>work[k]=(work[k]||0)-v);
+  const scoreOf=i=>{
+    if(S.mode==="silo") return siloRate(i);
+    if(S.mode==="xp") return xph(i);
+    const want=makeWanted[i.n]||0;
+    return want>0 ? 1e6+want*1000+xph(i) : xph(i);   // ưu tiên món phục vụ đơn
+  };
+  allMachines().forEach(p=>{
+    let free=S.slots[p]||0; if(free<=0) return;
+    const prods=items().filter(i=>i.p===p&&i.min>0).sort((a,b)=>scoreOf(b)-scoreOf(a));
+    while(free>0){
+      const pick=prods.find(i=>canMake(i)&&(S.mode!=="orders"||true));
+      if(!pick){
+        const best=prods[0];
+        if(best) Object.entries(best.in).forEach(([k,v])=>{
+          const short=v-(work[k]||0); if(short>0) blocked[k]=Math.max(blocked[k]||0,short);
+        });
+        break;
+      }
+      take(pick); queue.push(pick); free--;
+    }
+  });
+  const g={}; queue.forEach(i=>{ g[i.n]=g[i.n]||{item:i,count:0}; g[i.n].count++; });
+  return {batches:Object.values(g).sort((a,b)=>scoreOf(b.item)-scoreOf(a.item)), blocked};
+}
+function nextLogins(batches){
+  const ev=[];
+  allMachines().forEach(p=>parseWaits(S.wait[p]).forEach(n=>ev.push({t:n,w:p+" xong"})));
+  Object.keys(S.src||{}).forEach(p=>parseWaits(S.src[p].wait).forEach(n=>ev.push({t:n,w:p+" sẵn sàng"})));
+  batches.forEach(b=>ev.push({t:b.item.min,w:b.item.n+" xong"}));
+  if(S.boatEta>0) ev.push({t:S.boatEta,w:"thuyền cập bến"});
+  ev.sort((a,b)=>a.t-b.t);
+  if(!ev.length) return [];
+  const picks=[];
+  const pick=frac=>{ const i=Math.min(ev.length-1,Math.floor(ev.length*frac)); return ev[i]; };
+  [0.34,0.7,1].forEach(f=>{ const e=pick(f===1?0.999:f); if(e&&!picks.some(p=>p.t===e.t)) picks.push(e); });
+  if(S.boatEta>0&&!picks.some(p=>Math.abs(p.t-S.boatEta)<10)) picks.push({t:S.boatEta,w:"thuyền cập bến"});
+  return picks.sort((a,b)=>a.t-b.t).slice(0,4);
+}
+function renderPlan(){
+  const out=$("#planOut"); out.innerHTML="";
+  const P=planOrders();
+  const F=fillMachines(P.make);
+  const xpTotal=F.batches.reduce((a,x)=>a+x.item.xp*x.count,0);
+  const doneXp=[...P.deliverable.truck,...P.deliverable.boat].reduce((a,o)=>a+(o.xp||0),0);
+  const siloOut=F.batches.reduce((a,x)=>a+cropCost(x.item)*x.count,0);
+
+  const t=document.createElement("div"); t.className="tally";
+  t.innerHTML='<div><b>'+(P.deliverable.truck.length+P.deliverable.boat.length)+'</b><span>đơn giao ngay được</span></div>'
+    +'<div><b>'+(xpTotal+doneXp)+'</b><span>XP phiên này</span></div>'
+    +'<div><b>'+F.batches.reduce((a,x)=>a+x.count,0)+'</b><span>mẻ bấm máy</span></div>'
+    +'<div><b>'+siloOut+'</b><span>nông sản rút khỏi tháp</span></div>';
+  out.appendChild(t);
+
+  // 1 thu hoạch
+  const harvest=[];
+  Object.keys(S.src||{}).forEach(p=>{ if(S.src[p].ready>0) harvest.push(p+": thu "+S.src[p].ready); });
+  if(harvest.length) out.appendChild(step("1 · Thu trước", harvest));
+
+  // 2 giao đơn
+  const dl=[];
+  P.deliverable.truck.forEach(o=>dl.push('<b>Xe tải</b>: '+fmtIn(o.need)+(o.xp?' <span class="xp">'+o.xp+' XP</span>':'')));
+  P.deliverable.boat.forEach(o=>dl.push('<b>Thuyền</b>: '+fmtIn(o.need)+(o.xp?' <span class="xp">'+o.xp+' XP</span>':'')));
+  if(dl.length) out.appendChild(step("2 · Giao ngay được", dl, "blue"));
+  else if((S.truck||[]).filter(Boolean).length||(S.boat||[]).filter(Boolean).length) out.appendChild(step("2 · Giao ngay được", ["Chưa đơn nào đủ hàng."], "warn"));
+
+  // 3 bấm máy
+  if(F.batches.length){
+    const lines=F.batches.map(x=>{
+      const forOrder=P.make[x.item.n]?' <span class="pill ok">cho đơn</span>':'';
+      return forOrder+x.item.p+': <b>'+x.item.n+'</b> ×'+x.count+' <span class="xp">'+(x.item.xp*x.count)+' XP</span>'
+        +'<br><span class="why">'+hm(x.item.min)+' · '+xph(x.item).toFixed(0)+' XP/giờ · rút '+(cropCost(x.item)*x.count)+' nông sản · '+(fmtIn(x.item.in)||"—")+'</span>';
+    });
+    out.appendChild(step("3 · Bấm máy", lines));
+  } else out.appendChild(step("3 · Bấm máy", ["Không bấm được mẻ nào — kiểm tra ô Chỗ trống ở tab Máy."], "warn"));
+
+  // 4 trồng
+  const plantLines=Object.entries(P.plant).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+    const it=byName(k);
+    return 'Trồng <b>'+k+'</b> ×'+v+' <span class="why">· chín sau '+hm(it.min)+'</span>';
+  });
+  if(plantLines.length){
+    const free=S.plotsFree||0;
+    const totalPlant=Object.values(P.plant).reduce((a,b)=>a+b,0);
+    if(free&&totalPlant>free) plantLines.push('<span class="why">Bạn chỉ có '+free+' ô trống mà cần '+totalPlant+' — trồng dần qua nhiều lượt.</span>');
+    out.appendChild(step("4 · Trồng để lần sau chạy tiếp", plantLines));
+  }
+
+  // 5 chờ thu
+  const gatherLines=Object.entries(P.gather).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+    const it=byName(k); return '<b>'+k+'</b> thiếu '+v+' <span class="why">· từ '+(it?it.p:"?")+'</span>';
+  });
+  if(gatherLines.length) out.appendChild(step("5 · Chờ thu hoạch / khai thác", gatherLines, "warn"));
+
+  const buyLines=Object.entries(P.buy).map(([k,v])=>'<b>'+k+'</b> thiếu '+v+' — chưa có trong bảng, phải mua hoặc tự thêm công thức');
+  if(buyLines.length) out.appendChild(step("Không tự làm được", buyLines, "bad"));
+
+  // 6 cảnh báo kho
+  const w=[]; const s=totalSilo(), b=totalBarn();
+  if(S.capSilo&&s>=S.capSilo*0.9) w.push('Tháp nông sản '+s+'/'+S.capSilo+' — chỉ còn '+(S.capSilo-s)+' chỗ.');
+  if(S.capBarn&&b>=S.capBarn*0.9) w.push('Kho vật phẩm '+b+'/'+S.capBarn+' — chỉ còn '+(S.capBarn-b)+' chỗ.');
+  if((S.boat||[]).filter(Boolean).length&&S.boatDue>0) w.push('Thuyền còn '+hm(S.boatDue)+' là hết hạn.');
+  if(S.boatEta>0) w.push('Thuyền chưa tới, còn '+hm(S.boatEta)+'.');
+  if(w.length) out.appendChild(step("Cảnh báo", w, "bad"));
+
+  // 7 giờ đăng nhập tiếp theo
+  const nx=nextLogins(F.batches);
+  if(nx.length){
+    const lines=nx.map(e=>'<b>'+clock(0,e.t)+'</b> <span class="why">— sau '+hm(e.t)+', '+e.w+'</span>');
+    lines.push('<span class="why">Chọn giờ nào cũng được; vào muộn hơn thì máy nằm không lâu hơn.</span>');
+    out.appendChild(step("Nên đăng nhập lại lúc", lines, "blue"));
+  }
+}
+function step(title, lines, cls){
+  const d=document.createElement("div"); d.className="step"+(cls?" "+cls:"");
+  d.innerHTML='<h3>'+title+'</h3><ul>'+lines.map(l=>"<li>"+l+"</li>").join("")+'</ul>';
+  return d;
+}
+
+/* ========== BẢNG DỮ LIỆU ========== */
+function renderData(){
+  const tb=$("#dataTable tbody"); tb.innerHTML="";
+  const f=($("#dataFilter").value||"").toLowerCase();
+  items().filter(i=>!f||i.n.toLowerCase().includes(f)||i.p.toLowerCase().includes(f)).forEach(i=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML='<td><input></td><td><input></td><td class="num"><input type="number"></td><td class="num"><input type="number"></td><td><input></td>';
+    const [c1,c2,c3,c4,c5]=tr.querySelectorAll("input");
+    c1.value=i.n; c2.value=i.p; c3.value=i.min; c4.value=i.xp; c5.value=fmtIn(i.in);
+    c1.onchange=()=>{ const o=i.n; i.n=c1.value.trim()||o;
+      if(S.stock[o]!==undefined){ S.stock[i.n]=S.stock[o]; delete S.stock[o]; } save(); renderStock(); };
+    c2.onchange=()=>{ i.p=c2.value.trim(); save(); renderMachines(); renderSrc(); };
+    c3.onchange=()=>{ i.min=Math.max(0,parseInt(c3.value,10)||0); save(); };
+    c4.onchange=()=>{ i.xp=Math.max(0,parseInt(c4.value,10)||0); save(); };
+    c5.onchange=()=>{ i.in=parseIn(c5.value); save(); };
+    tb.appendChild(tr);
+  });
+}
+
+/* ========== ĐỒNG BỘ ========== */
+const GFILE="hayday.json";
+function syncMsg(t,bad){ const e=$("#syncMsg"); e.textContent=t; e.style.color=bad?"var(--barn)":"var(--ink-soft)"; }
+function readCfg(){ CFG.token=$("#ghToken").value.trim(); CFG.gist=$("#ghGist").value.trim().replace(/^.*\//,""); saveCfg(); }
+async function gistCall(method, body){
+  const r=await fetch("https://api.github.com/gists/"+CFG.gist,{method:method,
+    headers:{"Authorization":"Bearer "+CFG.token,"Accept":"application/vnd.github+json"},
+    body:body?JSON.stringify(body):undefined});
+  if(!r.ok) throw new Error(r.status===401?"Token sai hoặc hết hạn.":r.status===404?"Không tìm thấy gist, hoặc token thiếu quyền gist.":"GitHub lỗi "+r.status+".");
+  return r.json();
+}
+async function pushGist(){
+  readCfg(); if(!CFG.token||!CFG.gist){ syncMsg("Điền đủ hai ô đã.",true); return; }
+  syncMsg("Đang đẩy lên...");
+  try{ await gistCall("PATCH",{files:{[GFILE]:{content:JSON.stringify(S)}}});
+    CFG.last=new Date().toLocaleString("vi-VN"); saveCfg(); syncMsg("Đã đẩy lên lúc "+CFG.last+"."); }
+  catch(e){ syncMsg("Đẩy lên thất bại. "+e.message,true); }
+}
+async function pullGist(){
+  readCfg(); if(!CFG.token||!CFG.gist){ syncMsg("Điền đủ hai ô đã.",true); return; }
+  syncMsg("Đang kéo về...");
+  try{
+    const g=await gistCall("GET"); const f=g.files&&g.files[GFILE];
+    if(!f){ syncMsg("Gist chưa có "+GFILE+". Bấm Đẩy lên một lần.",true); return; }
+    let txt=f.content; if(f.truncated&&f.raw_url) txt=await (await fetch(f.raw_url)).text();
+    const data=JSON.parse(txt);
+    if(!data||!Array.isArray(data.items)) throw new Error("Dữ liệu không đúng định dạng.");
+    if(!confirm("Kéo về sẽ thay toàn bộ dữ liệu trên máy này. Tiếp tục?")){ syncMsg("Đã hủy."); return; }
+    S=Object.assign(S,data); save(); boot(false);
+    CFG.last=new Date().toLocaleString("vi-VN"); saveCfg(); syncMsg("Đã kéo về lúc "+CFG.last+".");
+  }catch(e){ syncMsg("Kéo về thất bại. "+e.message,true); }
+}
+
+/* ========== KHỞI ĐỘNG ========== */
+function bindNum(id,key,after){ const e=$(id); if(!e) return; e.value=S[key];
+  e.oninput=()=>{ S[key]=Math.max(0,parseInt(e.value,10)||0); save(); if(after) after(); }; }
+function showXp(){ const l=Math.max(0,(S.xpNeed||0)-(S.xpNow||0));
+  $("#xpLeft").textContent=l>0?"Còn "+l.toLocaleString("vi-VN")+" XP nữa là lên cấp.":"Đã đủ XP lên cấp."; }
+function boot(doLoad){
+  if(doLoad!==false) load();
+  ["capSilo","capBarn","plotsFree","plotsTotal","xpNow","xpNeed","boatEta","boatDue"].forEach(k=>bindNum("#"+k,k));
+  bindNum("#capSilo","capSilo",counts); bindNum("#capBarn","capBarn",counts);
+  bindNum("#xpNow","xpNow",showXp); bindNum("#xpNeed","xpNeed",showXp);
+  const md=$("#mode"); md.value=S.mode||"orders"; md.onchange=()=>{ S.mode=md.value; save(); };
+  const lt=$("#loginTime"); lt.value=S.loginTime||new Date().toTimeString().slice(0,5);
+  S.loginTime=lt.value; lt.onchange=()=>{ S.loginTime=lt.value; save(); };
+  $("#ghToken").value=CFG.token||""; $("#ghGist").value=CFG.gist||"";
+  if(CFG.last) syncMsg("Lần gần nhất: "+CFG.last+".");
+  renderStock(); renderSrc(); renderMachines(); renderData(); renderOrders(); showXp();
+}
+$("#btnNow").onclick=()=>{ const v=new Date().toTimeString().slice(0,5); $("#loginTime").value=v; S.loginTime=v; save(); };
+$("#btnPlan").onclick=renderPlan;
+$("#stockFilter").oninput=renderStock;
+$("#dataFilter").oninput=renderData;
+$("#btnTruck").onclick=()=>{ const a=parseOrders($("#truckBox").value).slice(0,9);
+  while(a.length<9) a.push(null); S.truck=a; save(); renderOrders(); };
+$("#btnBoat").onclick=()=>{ S.boat=parseOrders($("#boatBox").value); save(); renderOrders(); };
+$("#btnTruckClear").onclick=()=>{ S.truck=[null,null,null,null,null,null,null,null,null]; save(); renderOrders(); };
+$("#btnBoatClear").onclick=()=>{ S.boat=[]; save(); renderOrders(); };
+$("#btnAddMach").onclick=()=>{
+  const el=$("#newMach"), n=el.value.trim(); if(!n) return;
+  if(allMachines().includes(n)){ alert("Đã có máy tên này."); return; }
+  S.extraMachines=(S.extraMachines||[]).concat(n); el.value=""; save(); renderMachines();
+};
+$("#btnReset").onclick=()=>{ if(!confirm("Khôi phục bảng vật phẩm gốc? Tồn kho giữ nguyên.")) return;
+  S.items=JSON.parse(JSON.stringify(BASE)); save(); renderData(); renderStock(); renderMachines(); };
+$("#btnExport").onclick=()=>{ const b=$("#ioBox"); b.style.display="block"; b.value=JSON.stringify(S); b.select(); };
+$("#btnImport").onclick=()=>{ const b=$("#ioBox");
+  if(b.style.display==="none"){ b.style.display="block"; b.value=""; b.focus(); return; }
+  try{ S=Object.assign(S,JSON.parse(b.value)); save(); boot(false); alert("Đã nhập."); }
+  catch(e){ alert("Sai định dạng."); } };
+$("#btnPush").onclick=pushGist; $("#btnPull").onclick=pullGist;
+$("#btnCopyPair").onclick=async()=>{ readCfg(); const c=CFG.token+"|"+CFG.gist;
+  try{ await navigator.clipboard.writeText(c); syncMsg("Đã sao chép."); }catch(e){ prompt("Chép chuỗi:",c); } };
+$("#btnPastePair").onclick=()=>{ const v=prompt("Dán mã ghép (token|gist):",""); if(!v) return;
+  const p=v.trim().split("|"); if(p.length<2){ syncMsg("Sai dạng.",true); return; }
+  CFG.token=p[0].trim(); CFG.gist=p[1].trim(); saveCfg();
+  $("#ghToken").value=CFG.token; $("#ghGist").value=CFG.gist; syncMsg("Đã điền. Bấm Kéo về trước."); };
+boot();
+</script>
+</body>
+</html>
